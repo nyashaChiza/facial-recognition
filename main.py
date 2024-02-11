@@ -36,17 +36,27 @@ class FaceRecognition:
         try:
             for image in os.listdir("test-images"):
                 face_image = face_recognition.load_image_file(f"test-images/{image}")
-                face_encoding = face_recognition.face_encodings(face_image)[0]
+                face_encodings = face_recognition.face_encodings(face_image)
 
-                self.known_face_encodings.append(face_encoding)
-                self.known_face_names.append(image)
+                if face_encodings:
+                    # Assuming you want to use only the first face encoding if multiple faces are detected
+                    face_encoding = face_encodings[0]
+
+                    self.known_face_encodings.append(face_encoding)
+                    self.known_face_names.append(image)
+                else:
+                    logger.warning(f"No face found in image: {image}")
+                    self.known_face_encodings.append(None)  # Placeholder for images with no detected faces
+                    self.known_face_names.append(image)
         except FileNotFoundError as e:
             logger.error(f"Error loading image file: {e}")
         except Exception as e:
             logger.error(f"An unexpected error occurred: {e}")
 
+
+
     def run_recognition(self):
-        try:
+        if 1:
             video_capture = cv2.VideoCapture(0)
             self.video_capture = video_capture
 
@@ -122,14 +132,12 @@ class FaceRecognition:
                 if cv2.waitKey(1) == ord("q"):
                     logger.info('Exiting facial recognition...')
                     break
-
-
             
-        except cv2.error as e:
-            logger.error(f"OpenCV Error: {e}")
+        # except cv2.error as e:
+        #     logger.error(f"OpenCV Error: {e}")
         
-        except Exception as e:
-            logger.error(f"An unexpected error occurred: {e}")
+        # except Exception as e:
+        #     logger.error(f"An unexpected error occurred: {e}")
             
     def cleanup(self):
         try:

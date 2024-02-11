@@ -1,0 +1,55 @@
+{% extends 'layouts/base.html'%}
+
+{% block body %}
+
+<div class="container">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <h5 class="card-title">Citizen Image List <span class="text-muted fw-normal ms-2">({{citizens.count}})</span></h5>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3 d-flex justify-content-end">
+                <a href="{% url 'home' %}" class="btn btn-md btn-primary mx-1">Add New</a>
+                <a href="{% url 'home' %}" class="btn btn-md btn-primary">Back</a>
+            </div>
+        </div>
+        
+        
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="">
+                <div class="table-responsive">
+                    <table class="table project-list-table table-nowrap align-middle table-borderless">
+                        <thead>
+                            <tr>
+                                
+                                <th scope="col">Name</th>
+                                <th scope="col">ID Type</th>
+                                <th scope="col">ID Number</th>
+                                <th scope="col">Incidents</th>
+                               
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for citizen in citizens %}
+                            <tr>
+                           
+                                <td>{{ citizen }}</td>
+                                <td> {{ citizen.id_type }}</td>
+                                <td>{{ citizen.id_number}}</td>
+                                <td>{{ citizen.incidents.count }}</td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

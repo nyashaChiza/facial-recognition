@@ -1,0 +1,54 @@
+{% extends 'layouts/base.html'%}
+
+{% block body %}
+
+<div class="container">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <div class="mb-3">
+                <h5 class="card-title">Citizen Incidents <span class="text-muted fw-normal ms-2">({{ incidents.count }})</span></h5>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3 d-flex justify-content-end">
+                <a href="{% url 'home' %}" class="btn btn-md btn-primary">Back</a>
+            </div>
+        </div>
+        
+        
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="">
+                <div class="table-responsive">
+                    <table class="table project-list-table table-nowrap align-middle table-borderless">
+                        <thead>
+                            <tr>
+                                
+                                <th scope="col">Name</th>
+                                <th scope="col">Incident</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Action</th>
+                               
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for incident in incidents %}
+                            <tr>
+                           
+                                <td>{{ incident.citizen }}</td>
+                                <td> {{ incident.title }}</td>
+                                <td>{{ incident.created }}</td>
+                                <td><a href="{% url 'incident-detail' incident.citizen.pk %}">Details</a></td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}
