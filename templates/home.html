@@ -5,18 +5,19 @@
 <section class="pt-8 pt-md-9">
     <div class="container">
       <h2 class="text-dark fw-normal">
-        Citizen Incident Management
+        Driver Management
       </h2>
 
       <!-- Form -->
-      <form class="mt-4">
+      
+  
+      <form method="get" action="{% url 'search_citizens' %}" class="mt-4">
         <div class="input-group input-group-lg shadow-sm">
           <span class="input-group-text border-0">
             <i class="fas fa-search fa-xs text-secondary mb-1"></i>
           </span>
-
-          <input type="text" class="form-control bg-white border-0 px-1" placeholder="Search Citizens...">
-
+          <input type="text" name="search_query" class="form-control bg-white border-0 px-1" placeholder="Search Drivers...">
+          
           <span class="input-group-text border-0 py-1 pe-2">
             <button type="submit" class="btn btn-primary text-uppercase-bold-sm">
               Search
@@ -33,7 +34,7 @@
           </span>
         </div>
         <div class="col-md-4 mb-4">
-          <a href="#" class="card align-items-center text-decoration-none border-0 hover-lift-light py-4">
+          <a href="{% url 'incident-create' %}" class="card align-items-center text-decoration-none border-0 hover-lift-light py-4">
             <span class="icon-circle icon-circle-lg bg-pastel-primary text-primary">
               <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>ionicons-v5-n</title><path d="M53.12,199.94l400-151.39a8,8,0,0,1,10.33,10.33l-151.39,400a8,8,0,0,1-15-.34L229.66,292.45a16,16,0,0,0-10.11-10.11L53.46,215A8,8,0,0,1,53.12,199.94Z" style="fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></path><line x1="460" y1="52" x2="227" y2="285" style="fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></line></svg>
             </span>
@@ -49,7 +50,7 @@
               <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><title>ionicons-v5-e</title><rect x="48" y="80" width="416" height="384" rx="48" ry="48" style="fill:none;stroke:#000;stroke-linejoin:round;stroke-width:32px"></rect><path d="M397.82,80H114.18C77.69,80,48,110.15,48,147.2V208H64c0-16,16-32,32-32H416c16,0,32,16,32,32h16V147.2C464,110.15,434.31,80,397.82,80Z"></path><circle cx="296" cy="232" r="24"></circle><circle cx="376" cy="232" r="24"></circle><circle cx="296" cy="312" r="24"></circle><circle cx="376" cy="312" r="24"></circle><circle cx="136" cy="312" r="24"></circle><circle cx="216" cy="312" r="24"></circle><circle cx="136" cy="392" r="24"></circle><circle cx="216" cy="392" r="24"></circle><circle cx="296" cy="392" r="24"></circle><line x1="128" y1="48" x2="128" y2="80" style="fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></line><line x1="384" y1="48" x2="384" y2="80" style="fill:none;stroke:#000;stroke-linecap:round;stroke-linejoin:round;stroke-width:32px"></line></svg>
             </span>
             <span class="text-dark mt-3">
-              Citizens
+              Drivers
             </span>
           </a>
         </div>

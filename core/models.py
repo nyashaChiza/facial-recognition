@@ -2,7 +2,6 @@ from django.db import models
 
 class Citizen(models.Model):
     ID_CHOICES = (('Passport', 'Passport'),('National ID', 'National ID'),('Driver License', 'Driver License'))
-    
     first_name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     id_type = models.CharField(max_length=255, choices = ID_CHOICES)
@@ -16,6 +15,7 @@ class Incident(models.Model):
     citizen = models.ForeignKey(Citizen, on_delete=models.CASCADE, related_name='incidents', )
     title = models.CharField(max_length=255, blank=True, null=True)
     comment = models.TextField()
+    incident_date = models.DateField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     

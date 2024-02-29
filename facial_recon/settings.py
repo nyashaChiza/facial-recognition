@@ -1,7 +1,7 @@
 
 import os
 from pathlib import Path
-
+import loguru
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -11,11 +11,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-$-n#_4agqzg%+&#+xs_@5m=5+njty!-%di5537s^$atc^@ew$9'
-
+LOGGER=  loguru.logger
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','ngrok.io','2b72-41-60-109-226.ngrok-free.app']
 
 
 # Application definition
@@ -108,3 +108,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+CSRF_TRUSTED_ORIGINS = ["https://*.ngrok-free.app"]

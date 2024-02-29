@@ -1,0 +1,1 @@
+from core.helpers.generate_data import generate_random_data

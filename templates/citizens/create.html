@@ -1,0 +1,75 @@
+{% extends 'layouts/base.html' %}
+{% block body %}
+<div class="container py-5">
+
+    <div class="row align-items-center">
+       
+        <div class="col-md-12">
+            
+            <div class="mb-3 d-flex justify-content-end">
+                <a href="{% url 'home' %}" class="btn btn-md btn-primary">Back</a>
+            </div>
+        </div>
+        
+        
+    </div>
+    <div class="row gutters">
+    <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
+    
+    </div>
+    <div class="col-xl-12 col-lg-9 col-md-12 col-sm-12 col-12">
+    <div class="card h-100">
+        <form action="{% url 'citizen-create' %}" method="post">
+            {% csrf_token %}
+        <div class="card-body">
+            <div class="row gutters py-3">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                    <h6 class="mb-2 text-primary">Driver Details</h6>
+                </div>
+                
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label for="fullName">First Name</label>
+                        <input type="text" name='first_name' class="form-control" id="fullName" placeholder="Enter First name">
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
+                    <div class="form-group">
+                        <label for="eMail">Last Name</label>
+                        <input type="text"  name = 'last_name' class="form-control" id="eMail" placeholder="Enter Last Name">
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 py-3">
+                    <div class="form-group">
+                        <label for="phone">Identification Type</label>
+                        <select name="id_type" class="form-control">
+                            <option value ='Passport' >Passport</option>
+                            <option value ='National ID' >National ID</option>
+                            <option value ='Driver License' >Driver License</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 py-3">
+                    <div class="form-group">
+                        <label for="website">ID Number</label>
+                        <input type="text" class="form-control" id="website" placeholder="ID Number">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row gutters py-3">
+                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                    <div class="text-right">
+                    
+                        <button type="submit" id="submit" name="submit" class="btn btn-primary">Add Driver</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    </div>
+    </div>
+    </div>
+    </div>
+
+{% endblock %}
