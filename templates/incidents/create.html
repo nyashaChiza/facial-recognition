@@ -1,0 +1,29 @@
+{% extends 'layouts/base.html' %}
+
+{% block body %}
+
+
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    
+    {{ citizen_form.as_p }}
+    {{ incident_form.as_p }}
+    {{ image_form.as_p }}
+    
+    <button type="submit">Submit</button>
+  </form>
+  
+  <script>
+    // JavaScript to trigger the device camera
+    const imageInput = document.querySelector("#id_image");
+    const cameraButton = document.createElement("button");
+    cameraButton.textContent = "Capture Photo";
+    
+    cameraButton.addEventListener("click", () => {
+      imageInput.setAttribute("capture", "camera");
+    });
+  
+    // Append the camera button after the image input
+    imageInput.parentNode.insertBefore(cameraButton, imageInput.nextSibling);
+  </script>
+  {% endblock %}

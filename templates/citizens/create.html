@@ -1,6 +1,6 @@
 {% extends 'layouts/base.html' %}
 {% block body %}
-<div class="container py-5">
+<!-- <div class="container py-5">
 
     <div class="row align-items-center">
        
@@ -70,6 +70,66 @@
     </div>
     </div>
     </div>
-    </div>
+    </div> -->
 
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Citizen</title>
+    <script>
+        function captureImage() {
+            const video = document.getElementById('video');
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            // Send imageData to your Django view using AJAX
+            // Example:
+            // fetch('/capture_face/', {
+            //     method: 'POST',
+            //     headers: {
+            //         'Content-Type': 'application/json',
+            //     },
+            //     body: JSON.stringify({ image_data: imageData }),
+            // })
+            // .then(response => response.json())
+            // .then(data => {
+            //     // Handle response
+            // })
+            // .catch(error => {
+            //     console.error('Error capturing face:', error);
+            // });
+        }
+    </script>
+</head>
+<body>
+    <h1>Add Driver</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ citizen_form.as_p }}
+
+        <video id="video" width="640" height="480" autoplay></video>
+        <button type="button" onclick="captureImage()">Capture Face</button>
+
+        <script>
+            // Get access to the webcam
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    console.error('Error accessing webcam:', err);
+                });
+        </script>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
 {% endblock %}

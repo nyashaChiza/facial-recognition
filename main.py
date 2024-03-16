@@ -26,10 +26,11 @@ class FaceRecognition:
     process_current_frame: bool = True
     
     video_capture = None
-
+ 
 
     def __init__(self) -> None:
         logger.info("Running facial recognition")
+        self.face_names = None
         self.encode_faces()
 
     def encode_faces(self):
@@ -55,90 +56,93 @@ class FaceRecognition:
 
 
 
-    def run_recognition(self):
-        if 1:
-            video_capture = cv2.VideoCapture(0)
-            self.video_capture = video_capture
+    def run_recognition(self, frame):
+        try:
+            if 1:  # Modify this condition based on your logic
+                # video_capture = cv2.VideoCapture(0)
+                # self.video_capture = video_capture
 
-            if not self.video_capture.isOpened():
-                logger.error("Video Source not found ..!")
+                # if not self.video_capture.isOpened():
+                #     logger.error("Video Source not found ..!")
 
-            while True:
-                status, frame = self.video_capture.read()
+                # while True:
+                #     status, frame = self.video_capture.read()
 
-                if self.process_current_frame:
-                    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
-                    rbg_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+                    if frame:
+                        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+                        rbg_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
 
-                    self.face_locations = face_recognition.face_locations(
-                        rbg_small_frame
-                    )
-
-                    self.face_encodings = face_recognition.face_encodings(
-                        rbg_small_frame, self.face_locations
-                    )
-
-                    self.face_names = []
-
-                    for face_encoding in self.face_encodings:
-                        matches = face_recognition.compare_faces(
-                            self.known_face_encodings, face_encoding
-                        )
-                        name = "Not Registered"
-                        confidence = "Not Registered"
-
-                        face_distances = face_recognition.face_distance(
-                            self.known_face_encodings, face_encoding
+                        self.face_locations = face_recognition.face_locations(
+                            rbg_small_frame
                         )
 
-                        best_matches_matrix = np.argmin(face_distances)
+                        self.face_encodings = face_recognition.face_encodings(
+                            rbg_small_frame, self.face_locations
+                        )
 
-                        if matches[best_matches_matrix]:
-                            name = self.known_face_names[best_matches_matrix]
-                            if str(name).find("."):
-                                name = str(name).split(".")[0]
+                        self.face_names = []
 
-                            confidence = face_confidence(
-                                face_distances[best_matches_matrix]
+                        for face_encoding in self.face_encodings:
+                            matches = face_recognition.compare_faces(
+                                self.known_face_encodings, face_encoding
+                            )
+                            name = "Not Registered"
+                            confidence = "Not Registered"
+
+                            face_distances = face_recognition.face_distance(
+                                self.known_face_encodings, face_encoding
                             )
 
-                        self.face_names.append(f"{name} - {confidence}")
+                            best_matches_matrix = np.argmin(face_distances)
 
-                self.process_current_frame = not self.process_current_frame
+                            if matches[best_matches_matrix]:
+                                name = self.known_face_names[best_matches_matrix]
+                                if str(name).find("."):
+                                    name = str(name).split(".")[0]
 
-                for (top, right, bottom, left), name in zip(
-                    self.face_locations, self.face_names
-                ):
-                    top *= 4
-                    right *= 4
-                    bottom *= 4
-                    left *= 4
+                                confidence = face_confidence(
+                                    face_distances[best_matches_matrix]
+                                )
 
-                    cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-                    cv2.rectangle(
-                        frame, (left, bottom), (right, bottom), (0, 0, 255), -1
-                    )
-                    cv2.putText(
-                        frame,
-                        name,
-                        (left + 6, bottom - 6),
-                        cv2.FONT_HERSHEY_DUPLEX,
-                        0.8,
-                        (255, 255, 255),
-                        1,
-                    )
+                            self.face_names.append(f"{name} - {confidence}")
 
-                cv2.imshow("Face Recognition", frame)
-                if cv2.waitKey(1) == ord("q"):
-                    logger.info('Exiting facial recognition...')
-                    break
-            
-        # except cv2.error as e:
-        #     logger.error(f"OpenCV Error: {e}")
-        
-        # except Exception as e:
-        #     logger.error(f"An unexpected error occurred: {e}")
-            
+                    self.process_current_frame = not self.process_current_frame
+
+                    for (top, right, bottom, left), name in zip(
+                        self.face_locations, self.face_names
+                    ):
+                        top *= 4
+                        right *= 4
+                        bottom *= 4
+                        left *= 4
+
+                        cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+                        cv2.rectangle(
+                            frame, (left, bottom), (right, bottom), (0, 0, 255), -1
+                        )
+                        cv2.putText(
+                            frame,
+                            name,
+                            (left + 6, bottom - 6),
+                            cv2.FONT_HERSHEY_DUPLEX,
+                            0.8,
+                            (255, 255, 255),
+                            1,
+                        )
+
+                    cv2.imshow("Face Recognition", frame)
+                    if cv2.waitKey(1) == ord("q"):
+                        logger.info('Exiting facial recognition...')
+                      
+
+        except cv2.error as e:
+            logger.error(f"OpenCV Error: {e}")
+        except Exception as e:
+            logger.error(f"An unexpected error occurred: {e}")
+        finally:
+            self.cleanup()
+
+
     def cleanup(self):
         try:
             if self.video_capture is not None:
