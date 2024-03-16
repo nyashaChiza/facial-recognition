@@ -14,6 +14,10 @@ from django.http import StreamingHttpResponse
 import cv2
 from django.conf import settings
 from main import FaceRecognition
+import base64
+from django.core.files.base import ContentFile
+from django.http import JsonResponse
+from .forms import CitizenForm
 
 
 class IndexView(TemplateView):
@@ -239,3 +243,26 @@ def capture_image(request):
 
 def webcam_view(request):
     return render(request, 'images/create.html')
+
+
+
+
+
+def capture_driver(request):
+    if request.method == 'POST':
+        citizen_form = CitizenForm(request.POST)
+        if citizen_form.is_valid():
+            citizen = citizen_form.save(commit=False)  # Save citizen details
+            image_data = request.POST.get('image_data')
+            if image_data:
+                # Decode base64 image data and save as an image file
+                format, imgstr = image_data.split(';base64,')
+                ext = format.split('/')[-1]
+                citizen.picture.save(f'citizen_{citizen.id}.{ext}', ContentFile(base64.b64decode(imgstr)), save=False)
+            citizen.save()  # Save the citizen object with the image
+
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'error': 'Invalid form data'}, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)

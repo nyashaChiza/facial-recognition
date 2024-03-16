@@ -11,7 +11,8 @@ from .views import (
     search_citizens,
     generate_incident_report,
     webcam_view, capture_incident,
-    capture_image
+    capture_image,
+    capture_driver
     
 )
 
@@ -19,6 +20,7 @@ urlpatterns = [
     path('', IndexView.as_view(), name='home'),
     path('citizens/', CitizenListView.as_view(), name='citizen-list'),
     path('citizens/create/', CitizenCreateView.as_view(), name='citizen-create'),
+    path('captute/driver/', capture_driver, name='driver-create'),
     # path('incident/create/', IncidentCreateView.as_view(), name='incident-create'),
     path('incident/create/', capture_incident, name='incident-create'),
     path('citizen/detail/<int:pk>', CitizenDetailView.as_view(), name='citizen-detail'),

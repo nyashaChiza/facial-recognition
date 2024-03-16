@@ -8,13 +8,13 @@
 <body>
     <h1>Webcam Face Detection</h1>
     <video id="video" width="640" height="480" autoplay></video>
-    <button id="capture-btn">Capture Image</button>
+    <button id="capture-submit-btn">Capture and Submit</button>
     <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
 
     <script>
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
-        const captureButton = document.getElementById('capture-btn');
+        const captureSubmitButton = document.getElementById('capture-submit-btn');
 
         // Function to retrieve CSRF token from cookie
         function getCookie(name) {
@@ -44,44 +44,44 @@
                 console.error('Error accessing webcam:', err);
             });
 
-        // Capture image from webcam
-captureButton.addEventListener('click', () => {
-    const context = canvas.getContext('2d');
-    context.drawImage(video, 0, 0, canvas.width, canvas.height);
-    
-    // Convert canvas data to Blob object
-    canvas.toBlob(function(blob) {
-        // Create FormData object
-        const formData = new FormData();
-        
-        // Append blob data to FormData object
-        formData.append('image_data', blob, 'image.jpg'); // 'image.jpg' is the filename
-        console.log(formData);
-        // Send captured image to Django view using AJAX
-        fetch("{% url 'capture_image' %}", {
-            method: 'POST',
-            headers: {
-                // Don't set Content-Type header for FormData
-                'X-CSRFToken': csrftoken,
-            },
-            body: formData,
-        })
-        .then(response => {
-            if (response.ok) {
-                return response.json();
-            } else {
-                throw new Error('Failed to detect faces');
-            }
-        })
-        .then(data => {
-            console.log('Number of faces detected:', data.num_faces);
-            // You can update the UI here based on the number of faces detected
-        })
-        .catch(error => {
-            console.error('Error detecting faces:', error);
+        // Capture image from webcam and submit
+        captureSubmitButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Convert canvas data to Blob object
+            canvas.toBlob(function(blob) {
+                // Create FormData object
+                const formData = new FormData();
+                
+                // Append blob data to FormData object
+                formData.append('image_data', blob, 'image.jpg'); // 'image.jpg' is the filename
+                console.log(formData);
+                // Send captured image to Django view using AJAX
+                fetch("{% url 'capture_image' %}", {
+                    method: 'POST',
+                    headers: {
+                        // Don't set Content-Type header for FormData
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Failed to detect faces');
+                    }
+                })
+                .then(data => {
+                    console.log('Number of faces detected:', data.num_faces);
+                    // You can update the UI here based on the number of faces detected
+                })
+                .catch(error => {
+                    console.error('Error detecting faces:', error);
+                });
+            }, 'image/jpeg');
         });
-    }, 'image/jpeg');
-});
     </script>
 </body>
 </html>

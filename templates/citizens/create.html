@@ -1,122 +1,37 @@
-{% extends 'layouts/base.html' %}
+{% extends 'layouts/base.html'%}
+
 {% block body %}
-<!-- <div class="container py-5">
-
-    <div class="row align-items-center">
-       
-        <div class="col-md-12">
-            
-            <div class="mb-3 d-flex justify-content-end">
-                <a href="{% url 'home' %}" class="btn btn-md btn-primary">Back</a>
-            </div>
-        </div>
-        
-        
-    </div>
-    <div class="row gutters">
-    <div class="col-xl-3 col-lg-3 col-md-12 col-sm-12 col-12">
-    
-    </div>
-    <div class="col-xl-12 col-lg-9 col-md-12 col-sm-12 col-12">
-    <div class="card h-100">
-        <form action="{% url 'citizen-create' %}" method="post">
-            {% csrf_token %}
-        <div class="card-body">
-            <div class="row gutters py-3">
-                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                    <h6 class="mb-2 text-primary">Driver Details</h6>
-                </div>
-                
-                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                    <div class="form-group">
-                        <label for="fullName">First Name</label>
-                        <input type="text" name='first_name' class="form-control" id="fullName" placeholder="Enter First name">
-                    </div>
-                </div>
-                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12">
-                    <div class="form-group">
-                        <label for="eMail">Last Name</label>
-                        <input type="text"  name = 'last_name' class="form-control" id="eMail" placeholder="Enter Last Name">
-                    </div>
-                </div>
-                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 py-3">
-                    <div class="form-group">
-                        <label for="phone">Identification Type</label>
-                        <select name="id_type" class="form-control">
-                            <option value ='Passport' >Passport</option>
-                            <option value ='National ID' >National ID</option>
-                            <option value ='Driver License' >Driver License</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 py-3">
-                    <div class="form-group">
-                        <label for="website">ID Number</label>
-                        <input type="text" class="form-control" id="website" placeholder="ID Number">
-                    </div>
-                </div>
-            </div>
-            
-            <div class="row gutters py-3">
-                <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
-                    <div class="text-right">
-                    
-                        <button type="submit" id="submit" name="submit" class="btn btn-primary">Add Driver</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </form>
-    </div>
-    </div>
-    </div>
-    </div> -->
-
-    <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Citizen</title>
-    <script>
-        function captureImage() {
-            const video = document.getElementById('video');
-            const canvas = document.createElement('canvas');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            const context = canvas.getContext('2d');
-            context.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const imageData = canvas.toDataURL('image/jpeg');
-
-            // Send imageData to your Django view using AJAX
-            // Example:
-            // fetch('/capture_face/', {
-            //     method: 'POST',
-            //     headers: {
-            //         'Content-Type': 'application/json',
-            //     },
-            //     body: JSON.stringify({ image_data: imageData }),
-            // })
-            // .then(response => response.json())
-            // .then(data => {
-            //     // Handle response
-            // })
-            // .catch(error => {
-            //     console.error('Error capturing face:', error);
-            // });
-        }
-    </script>
-</head>
-<body>
     <h1>Add Driver</h1>
-    <form method="post">
+    <form method="post" action="{% url 'driver-create' %}" id="driver-form" enctype="multipart/form-data" >
         {% csrf_token %}
         {{ citizen_form.as_p }}
 
         <video id="video" width="640" height="480" autoplay></video>
-        <button type="button" onclick="captureImage()">Capture Face</button>
+        <button type="button" id="capture-btn">Capture Face and Submit</button>
 
         <script>
+            document.getElementById('capture-btn').addEventListener('click', function() {
+                const video = document.getElementById('video');
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/jpeg');
+              
+
+                // Assign the captured image data to a hidden input field in the form
+                const imageInput = document.createElement('input');
+                imageInput.type = 'hidden';
+                imageInput.name = 'image_data';
+                imageInput.value = imageData;
+                document.getElementById('driver-form').appendChild(imageInput);
+                console.log(document.getElementById('driver-form'))
+                // Submit the form
+                console.log(document.getElementById('driver-form'))
+                document.getElementById('driver-form').submit();
+            });
+
             // Get access to the webcam
             navigator.mediaDevices.getUserMedia({ video: true })
                 .then(stream => {
@@ -127,9 +42,5 @@
                     console.error('Error accessing webcam:', err);
                 });
         </script>
-
-        <button type="submit">Submit</button>
     </form>
-</body>
-</html>
-{% endblock %}
+    {% endblock %}
