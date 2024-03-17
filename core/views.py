@@ -1,22 +1,24 @@
-import cv2
-import base64
-import numpy as np
+
 import os
-from django.contrib import messages
-from django.urls import reverse, reverse_lazy
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponse
-from django.views.generic import TemplateView, ListView, DetailView, CreateView
-from django.core.files.base import ContentFile
-from django.db import models
+import base64
+
 from django.conf import settings
-
+from .models import Citizen
+from django.db import models
+from django.urls import reverse
+from .forms import BlacklistForm
 from reportlab.pdfgen import canvas
-
-from .models import Citizen, Incident, CitizenImage
-from .forms import CitizenSearchForm, CitizenForm, IncidentForm, CitizenImageForm
-from main import FaceRecognition
+from django.contrib import messages
+from django.http import  HttpResponse
 from core.helpers import compare_faces
+from django.shortcuts import render, redirect
+from django.core.files.base import ContentFile
+from .models import Citizen, Incident, CitizenImage
+from .forms import CitizenSearchForm, CitizenForm, IncidentForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.views.generic import TemplateView, ListView, DetailView, CreateView
+
+
 
 class IndexView(TemplateView):
     template_name = 'home.html'
@@ -30,6 +32,14 @@ class CitizenListView(ListView):
     model = Citizen
     context_object_name = 'citizens'
     template_name = 'citizens/index.html'
+    
+class BlacklistedCitizenListView(ListView):
+    model = Citizen
+    context_object_name = 'citizens'
+    template_name = 'citizens/blacklist.html'
+    
+    def get_queryset(self):
+        return super().get_queryset().filter(is_blacklisted=True).all()
 
 class CitizenDetailView(DetailView):
     model = Citizen
@@ -40,6 +50,28 @@ class IncidentDetailView(DetailView):
     model = Incident
     context_object_name = 'incident'
     template_name = 'incidents/detail.html'
+
+
+def blacklist_citizen(request, citizen_id):
+    # Retrieve the citizen object
+    citizen = Citizen.objects.get(pk=citizen_id)
+
+    if request.method == 'POST':
+        # Create a form instance and populate it with data from the request
+        form = BlacklistForm(request.POST, instance=citizen)
+        if form.is_valid():
+            # Save the form
+            citizen.is_blacklisted=True
+            settings.LOGGER.critical(form.cleaned_data)
+            citizen.blacklist_reason = form.cleaned_data['blacklist_reason']
+            citizen.save()
+            return redirect('citizen-detail', pk=citizen_id)  # Redirect to the citizen detail page
+    else:
+        # If it's a GET request, create a blank form
+        form = BlacklistForm(instance=citizen)
+
+    return render(request, 'citizens/blacklist_form.html', {'form': form, 'citizen': citizen})
+
 
 class IncidentCreateView(CreateView):
     model = Incident
@@ -80,9 +112,11 @@ def generate_incident_report(request, citizen_id):
     response['Content-Disposition'] = f'attachment; filename="{citizen.first_name} {citizen.last_name} Report.pdf"'
 
     p = canvas.Canvas(response)
-    p.drawString(100, 800, f"Incident Report for {citizen.first_name} {citizen.last_name}")
-
-    y_position = 780
+    p.drawString(100, 800, f"Incident Report for {citizen.first_name} {citizen.last_name} ")
+    p.drawString(100, 780, f"Blacklist Status {citizen.is_blacklisted} ")
+    if citizen.is_blacklisted:
+        p.drawString(100, 760, f"Blacklist Reason {citizen.blacklist_reason} ")
+    y_position = 735
     for incident in incidents:
         y_position -= 20
         p.drawString(100, y_position, f"Title: {incident.title}")
@@ -137,7 +171,10 @@ def capture_incident(request):
                 incident.citizen = driver
                 incident.save()
                 os.remove(temp_image_name)
-                messages.success(request, f'Incident for {driver} saved successfully')
+                if driver.is_blacklisted:
+                    messages.warning(request, f'Incident for {driver} saved successfully (Please Note This is a blacklisted Driver)')
+                else:
+                    messages.success(request, f'Incident for {driver} saved successfully')
                 
             else:
                 messages.warning(request, f'Invalid Driver Information for {driver}')

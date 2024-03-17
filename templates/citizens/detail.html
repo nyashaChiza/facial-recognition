@@ -37,12 +37,17 @@
                                 <ul class="list-unstyled mb-1-9">
                                     <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">ID Type:</span> {{ citizen.id_type }}</li>
                                     <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">ID Number:</span> {{ citizen.id_number }}</li>
+                                    <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">Is Blacklisted:</span> {{ citizen.is_blacklisted }}</li>
                                     <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">Number Of Incidents:</span> {{ citizen.incidents.count}} </li>
+                                    {% if citizen.is_blacklisted %}<li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">Blacklist Reason:</span> {{ citizen.blacklist_reason}} </li>{% endif %}
 
                                 </ul>
 
-                                <a href="{% url 'generate_incident_report' citizen.pk %}" class="button btn-md bg-warning mb-0 px-2 mx-2 py-2 mx-2 rounded-2">
+                                <a href="{% url 'generate_incident_report' citizen.pk %}" class="button btn-md text-white bg-dark mb-0 px-2 mx-2 py-2 mx-2 rounded-2">
                                     Generate Report
+                                </a>
+                                <a href="{% url 'blacklist-driver' citizen.pk %}" class="button btn-md bg-danger text-white mb-0 px-2 mx-2 py-2 mx-2 rounded-2">
+                                    Blacklist Driver
                                 </a>
                                 
                                 

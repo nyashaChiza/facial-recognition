@@ -6,10 +6,11 @@
     <div class="row align-items-center">
         <div class="col-md-6">
             <div class="mb-3">
-                <h5 class="card-title">Citizen Incidents <span class="text-muted fw-normal ms-2">({{ incidents.count }})</span></h5>
+                <h5 class="card-title"> Blacklisted Driver List <span class="text-muted fw-normal ms-2">({{citizens.count}})</span></h5>
             </div>
         </div>
         <div class="col-md-6">
+            
             <div class="mb-3 d-flex justify-content-end">
                 <a href="{% url 'home' %}" class="btn btn-md btn-primary">Back</a>
             </div>
@@ -26,22 +27,26 @@
                             <tr>
                                 
                                 <th scope="col">Name</th>
-                                <th scope="col">Incident</th>
-                                <th scope="col">Date</th>
+                                <th scope="col">ID Type</th>
+                                <th scope="col">ID Number</th>
+                                <th scope="col">Reason</th>
                                 <th scope="col">Action</th>
                                
                             </tr>
                         </thead>
                         <tbody>
-                            {% for incident in incidents %}
+                            {% for citizen in citizens %}
+                            
                             <tr>
                            
-                                <td>{{ incident.citizen }}</td>
-                                <td> {{ incident.title }}</td>
-                                <td>{{ incident.incident_date }}</td>
-                                <td><a href="{% url 'incident-detail' incident.pk %}">Details</a></td>
+                                <td>{{ citizen }}</td>
+                                <td> {{ citizen.id_type }}</td>
+                                <td>{{ citizen.id_number}}</td>
+                                <td>{{ citizen.blacklist_reason }}</td>
+                                <td><a href="{% url 'citizen-detail' citizen.pk %}">Details</a></td>
                                 
                             </tr>
+                          
                             {% endfor %}
                         </tbody>
                     </table>

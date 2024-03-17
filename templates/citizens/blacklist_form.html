@@ -1,0 +1,24 @@
+{% extends 'layouts/base.html'%}
+
+{% block body %}
+<section class="bg-white">
+    <div class="container " >
+  <div class="row align-items-center bg-light">
+            
+    <div class="col-md-12 p-3 ">
+        <div class="mb-3 d-flex justify-content-end">
+            <a href="{% url 'citizen-list' %}" class="btn btn-md btn-primary">Back</a>
+        </div>
+    </div>
+    
+    
+  </div>
+    <h1>Blacklist {{ citizen }} ({{citizen.id_number}})</h1>
+    <form method="post"  id="driver-blacklist">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-md btn-primary m-3" id="capture-btn">Submit</button>
+    </form>
+</div>
+</section>
+    {% endblock %}

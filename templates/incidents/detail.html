@@ -21,8 +21,8 @@
                     <div class="card-body p-1-9 p-sm-2-3 p-md-6 p-lg-7">
                         <div class="row align-items-center my-2">
                             <div class="col-lg-6 mb-4 mb-lg-0">
-                                {% if incident.citizen.image.first.image %}
-                                    <img width=360 height=320 src="{{ incident.citizen.image.first.image.url }}" alt="Citizen Image">
+                                {% if incident.citizen.picture %}
+                                    <img width=360 height=320 src="{{ incident.citizen.picture.url }}" alt="Citizen Image">
                                 {% else %}
                                     <!-- Add a default image or alternative content when no image is present -->
                                     <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Default Image">

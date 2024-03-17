@@ -6,8 +6,11 @@ class Citizen(models.Model):
     last_name = models.CharField(max_length=255)
     picture = models.ImageField(upload_to='citizen/images/', blank=True, null=True)
     id_type = models.CharField(max_length=255, choices = ID_CHOICES)
-    id_number = models.CharField(max_length=255)
+    id_number = models.CharField(max_length=255, unique=True)
     is_blacklisted = models.BooleanField(default=False)
+    blacklist_reason = models.TextField(null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True,null=True, blank=True)
+    updated = models.DateTimeField(auto_now=True,null=True, blank=True)
     
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"

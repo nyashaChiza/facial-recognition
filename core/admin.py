@@ -11,9 +11,10 @@ class CitizenImagesInline(admin.TabularInline):
 
 @admin.register(Citizen)
 class CitizenAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'id_type', 'id_number')
+    list_display = ('first_name', 'last_name', 'id_type', 'id_number', 'is_blacklisted')
     search_fields = ['first_name', 'last_name', 'id_number']
     inlines = [IncidentsInline, CitizenImagesInline]
+    list_filter = ('is_blacklisted',)
 
 @admin.register(Incident)
 class IncidentsAdmin(admin.ModelAdmin):
