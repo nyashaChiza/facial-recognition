@@ -14,7 +14,7 @@ def compare_faces(image_path):
 
     # Encode the faces in the captured image
     captured_face_encodings = face_recognition.face_encodings(captured_image, captured_face_locations)
-    print(captured_face_encodings)
+
     # Get all citizens
     citizens = Citizen.objects.all().order_by('-pk')
 
