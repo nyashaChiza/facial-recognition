@@ -1,29 +1,61 @@
 {% extends 'layouts/base.html' %}
 
 {% block body %}
-
-
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    
-    {{ citizen_form.as_p }}
-    {{ incident_form.as_p }}
-    {{ image_form.as_p }}
-    
-    <button type="submit">Submit</button>
-  </form>
+<section class="bg-white">
+  <div class="container " >
+<div class="row align-items-center bg-light">
+          
+  <div class="col-md-12 p-3 ">
+      <div class="mb-3 d-flex justify-content-end">
+          <a href="{% url 'home' %}" class="btn btn-md btn-primary">Back</a>
+      </div>
+  </div>
   
-  <script>
-    // JavaScript to trigger the device camera
-    const imageInput = document.querySelector("#id_image");
-    const cameraButton = document.createElement("button");
-    cameraButton.textContent = "Capture Photo";
-    
-    cameraButton.addEventListener("click", () => {
-      imageInput.setAttribute("capture", "camera");
-    });
   
-    // Append the camera button after the image input
-    imageInput.parentNode.insertBefore(cameraButton, imageInput.nextSibling);
-  </script>
-  {% endblock %}
+</div>
+    <h1>Add Incident</h1>
+    <form method="post" action="{% url 'incident-capture' %}" id="incident-form" enctype="multipart/form-data" >
+        {% csrf_token %}
+        
+        <!-- Remove the citizen_form and video element -->
+        
+        {{ form.as_p }}
+
+        <video id="video" width="640" height="480" autoplay></video>
+        <button type="button" id="capture-btn">Capture Face and Submit</button>
+
+        <script>
+            document.getElementById('capture-btn').addEventListener('click', function() {
+                const video = document.getElementById('video');
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/jpeg');
+
+                // Assign the captured image data to a hidden input field in the form
+                const imageInput = document.createElement('input');
+                imageInput.type = 'hidden';
+                imageInput.name = 'image_data';
+                imageInput.value = imageData;
+                document.getElementById('incident-form').appendChild(imageInput);
+
+                // Submit the form
+                document.getElementById('incident-form').submit();
+            });
+
+            // Get access to the webcam
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    console.error('Error accessing webcam:', err);
+                });
+        </script>
+    </form>
+  </div>
+</section>
+{% endblock %}

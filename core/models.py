@@ -7,6 +7,7 @@ class Citizen(models.Model):
     picture = models.ImageField(upload_to='citizen/images/', blank=True, null=True)
     id_type = models.CharField(max_length=255, choices = ID_CHOICES)
     id_number = models.CharField(max_length=255)
+    is_blacklisted = models.BooleanField(default=False)
     
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"
@@ -15,6 +16,7 @@ class Citizen(models.Model):
 class Incident(models.Model):
     citizen = models.ForeignKey(Citizen, on_delete=models.CASCADE, related_name='incidents', )
     title = models.CharField(max_length=255, blank=True, null=True)
+    location = models.CharField(max_length=255, blank=True, null=True)
     comment = models.TextField()
     incident_date = models.DateField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
