@@ -27,6 +27,7 @@
                                 
                                 <th scope="col">Name</th>
                                 <th scope="col">Incident</th>
+                                <th scope="col">Location</th>
                                 <th scope="col">Date</th>
                                 <th scope="col">Action</th>
                                
@@ -38,6 +39,7 @@
                            
                                 <td>{{ incident.citizen }}</td>
                                 <td> {{ incident.title }}</td>
+                                <td> {{ incident.location }}</td>
                                 <td>{{ incident.incident_date }}</td>
                                 <td><a href="{% url 'incident-detail' incident.pk %}">Details</a></td>
                                 
