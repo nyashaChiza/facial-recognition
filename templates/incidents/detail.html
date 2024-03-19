@@ -13,7 +13,7 @@
                 </div>
             </div>
             
-            
+        <div class="title">Incident Details</div>
         </div>
         <div class="row">
             <div class="col-lg-12 mb-4 mb-sm-5">
@@ -31,7 +31,7 @@
                             
                             <div class="col-lg-6 px-xl-10">
                                 <div class="bg-secondary d-lg-inline-block py-1-9 px-1-9 px-sm-6 mb-1-9 rounded my-1">
-                                    <h3 class="h2 text-white mb-0 px-2 mx-2 py-2 mx-2">{{ incident.citizen }}</h3>
+                                    <h3 class="h2 text-white mb-0 px-2 mx-2 py-2 mx-2"><a class="text-white" href="{% url 'citizen-detail' incident.citizen.pk %}">{{ incident.citizen }}</a></h3>
                                     
                                 </div>
                                 <ul class="list-unstyled mb-1-9">
@@ -50,10 +50,10 @@
             </div>
             <div class="col-lg-12 mb-4 mb-sm-5">
                 <div class="incident-section">
-                    <h2 class="section-title text-primary mb-3 mb-sm-4">Incident Details</h2>
+                    <h2 class="section-title text-dark mb-3 mb-sm-4">Incident Details</h2>
                 
                     {% if incident %}
-                        <div class = 'card card-borded border-1 px-2 mx-2 py-2 my-2'>
+                        <div class = 'card card-borded border-1 px-2 mx-2 py-2 my-2 bg-light'>
                                     <ul class="incident-list">
                                         <li class="incident-item">
                                             <p>
