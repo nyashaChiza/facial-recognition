@@ -28,12 +28,12 @@ def compare_faces(image_path):
         if citizen_image:
             # Load the image of the citizen
             citizen_image_data = face_recognition.load_image_file(citizen_image.path)
-            citizen_face_encoding = face_recognition.face_encodings(citizen_image_data)
+            citizen_face_encodings = face_recognition.face_encodings(citizen_image_data)
 
-            if citizen_face_encoding:
+            if citizen_face_encodings:
                 # Compare the captured face encoding with the encoding of the citizen's face
-                for encoding in citizen_face_encoding:
-                    matches = face_recognition.compare_faces(encoding, captured_face_encodings)
+                for encoding in captured_face_encodings:
+                    matches = face_recognition.compare_faces(citizen_face_encodings, encoding,tolerance=0.8)
                     print(matches)
                     if any(matches):
                         # Match found, return the matched citizen

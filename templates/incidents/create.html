@@ -1,7 +1,8 @@
 {% extends 'layouts/base.html' %}
 
 {% block body %}
-<section class="bg-white">
+<section class="container bg-white mx-auto m-3 p-3 rounded-2">
+<div class="container m-3 p-3 rounded-2">
   <div class="container " >
 <div class="row align-items-center bg-light">
           
@@ -21,8 +22,8 @@
         
         {{ form.as_p }}
 
-        <video id="video" width="640" height="480" autoplay></video>
-        <button type="button" id="capture-btn">Capture Face and Submit</button>
+        <video class="form-control" id="video" width="640" height="480" autoplay></video>
+        <button class="form-control m-2 bg-success" type="button" id="capture-btn">Capture Face and Submit</button>
 
         <script>
             document.getElementById('capture-btn').addEventListener('click', function() {

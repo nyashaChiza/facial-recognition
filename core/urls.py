@@ -13,6 +13,7 @@ from .views import (
     capture_incident,
     capture_driver,
     blacklist_citizen,
+    reinstate_citizen,
     BlacklistedCitizenListView
 )
 
@@ -31,6 +32,7 @@ urlpatterns = [
     path('search/', search_citizens, name='search_citizens'),
     path('generate_incident_report/<int:citizen_id>/', generate_incident_report, name='generate_incident_report'),
     path('blacklist-driver/<int:citizen_id>/', blacklist_citizen, name='blacklist-driver'),
+    path('reinstate-driver/<int:citizen_id>/', reinstate_citizen, name='reinstate-driver'),
   
     # Add other URL patterns as needed
 ]

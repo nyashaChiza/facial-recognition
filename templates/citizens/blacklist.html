@@ -1,8 +1,8 @@
 {% extends 'layouts/base.html'%}
 
 {% block body %}
-
-<div class="container">
+<section class="container bg-white mx-auto m-3 p-3 rounded-2">
+<div class="container bg-white m-3 p-3 rounded-2 mx-auto">
     <div class="row align-items-center">
         <div class="col-md-6">
             <div class="mb-3">
@@ -43,7 +43,7 @@
                                 <td> {{ citizen.id_type }}</td>
                                 <td>{{ citizen.id_number}}</td>
                                 <td>{{ citizen.blacklist_reason }}</td>
-                                <td><a href="{% url 'citizen-detail' citizen.pk %}">Details</a></td>
+                                <td><a class="btn btn-sm bg-light" href="{% url 'citizen-detail' citizen.pk %}">Details</a></td>
                                 
                             </tr>
                           
@@ -56,4 +56,5 @@
     </div>
     
 </div>
+</section>
 {% endblock %}

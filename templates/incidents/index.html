@@ -1,7 +1,7 @@
 {% extends 'layouts/base.html'%}
 
 {% block body %}
-
+<section class="container bg-white mx-auto m-3 p-3 rounded-2">
 <div class="container">
     <div class="row align-items-center">
         <div class="col-md-6">
@@ -41,7 +41,7 @@
                                 <td> {{ incident.title }}</td>
                                 <td> {{ incident.location }}</td>
                                 <td>{{ incident.incident_date }}</td>
-                                <td><a href="{% url 'incident-detail' incident.pk %}">Details</a></td>
+                                <td><a class="btn btn-sm bg-light" href="{% url 'incident-detail' incident.pk %}">Details</a></td>
                                 
                             </tr>
                             {% endfor %}
@@ -53,4 +53,5 @@
     </div>
     
 </div>
+</section>
 {% endblock %}

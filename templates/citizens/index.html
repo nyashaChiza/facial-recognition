@@ -1,7 +1,7 @@
 {% extends 'layouts/base.html'%}
 
 {% block body %}
-
+<section class="container bg-white mx-auto m-3 p-3 rounded-2">
 <div class="container">
     <div class="row align-items-center">
         <div class="col-md-6">
@@ -44,7 +44,7 @@
                                 <td> {{ citizen.id_type }}</td>
                                 <td>{{ citizen.id_number}}</td>
                                 <td>{{ citizen.incidents.count }}</td>
-                                <td><a href="{% url 'citizen-detail' citizen.pk %}">Details</a></td>
+                                <td><a class="btn btn-sm bg-light" href="{% url 'citizen-detail' citizen.pk %}">Details</a></td>
                                 
                             </tr>
                             {% endfor %}
@@ -56,4 +56,5 @@
     </div>
     
 </div>
+</section>
 {% endblock %}

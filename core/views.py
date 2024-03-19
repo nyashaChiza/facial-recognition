@@ -52,6 +52,20 @@ class IncidentDetailView(DetailView):
     template_name = 'incidents/detail.html'
 
 
+
+def reinstate_citizen(request, citizen_id):
+    # Retrieve the citizen object
+    citizen = Citizen.objects.get(pk=citizen_id)
+
+    if request.method == 'GET':
+
+            citizen.is_blacklisted=False
+            citizen.blacklist_reason = ""
+            citizen.save()
+    return redirect('citizen-list')  
+       
+
+
 def blacklist_citizen(request, citizen_id):
     # Retrieve the citizen object
     citizen = Citizen.objects.get(pk=citizen_id)
@@ -62,7 +76,6 @@ def blacklist_citizen(request, citizen_id):
         if form.is_valid():
             # Save the form
             citizen.is_blacklisted=True
-            settings.LOGGER.critical(form.cleaned_data)
             citizen.blacklist_reason = form.cleaned_data['blacklist_reason']
             citizen.save()
             return redirect('citizen-detail', pk=citizen_id)  # Redirect to the citizen detail page
@@ -113,15 +126,18 @@ def generate_incident_report(request, citizen_id):
 
     p = canvas.Canvas(response)
     p.drawString(100, 800, f"Incident Report for {citizen.first_name} {citizen.last_name} ")
-    p.drawString(100, 780, f"Blacklist Status {citizen.is_blacklisted} ")
+    p.drawString(100, 780, f"Is Blacklist : {'Yes' if citizen.is_blacklisted else "No"} ")
+    p.drawString(100, 760, f"ID Type: {citizen.id_type} ")
+    p.drawString(100, 740, f"ID Number: {citizen.id_number} ")
+    
     if citizen.is_blacklisted:
-        p.drawString(100, 760, f"Blacklist Reason {citizen.blacklist_reason} ")
-    y_position = 735
+        p.drawString(100, 720, f"Blacklist Reason: {citizen.blacklist_reason} ")
+    y_position = 695
     for incident in incidents:
         y_position -= 20
         p.drawString(100, y_position, f"Title: {incident.title}")
         y_position -= 15
-        p.drawString(100, y_position, f"Loaction: {incident.location}")
+        p.drawString(100, y_position, f"Location: {incident.location}")
         y_position -= 15
         p.drawString(100, y_position, f"Comment: {incident.comment}")
         y_position -= 15
