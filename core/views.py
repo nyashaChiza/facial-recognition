@@ -136,6 +136,8 @@ def generate_incident_report(request, citizen_id):
     for incident in incidents:
         y_position -= 20
         p.drawString(100, y_position, f"Title: {incident.title}")
+        y_position -= 20
+        p.drawString(100, y_position, f"Vehicle Reg Number: {incident.vehicle_registration_number}")
         y_position -= 15
         p.drawString(100, y_position, f"Location: {incident.location}")
         y_position -= 15

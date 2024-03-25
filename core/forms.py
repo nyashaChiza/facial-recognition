@@ -53,7 +53,7 @@ class IncidentForm(forms.ModelForm):
 
     class Meta:
         model = Incident
-        fields = ['title','location', 'comment', 'incident_date', 'image_data']
+        fields = ['title','vehicle_registration_number','location', 'comment', 'incident_date', 'image_data']
         widgets = {
             'incident_date': forms.DateInput(attrs={'type': 'date'})
         }
