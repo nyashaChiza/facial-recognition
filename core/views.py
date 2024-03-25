@@ -10,7 +10,7 @@ from .forms import BlacklistForm
 from reportlab.pdfgen import canvas
 from django.contrib import messages
 from django.http import  HttpResponse
-from core.helpers import compare_faces
+from core.helpers import find_face
 from django.shortcuts import render, redirect
 from django.core.files.base import ContentFile
 from .models import Citizen, Incident, CitizenImage
@@ -177,9 +177,11 @@ def capture_incident(request):
         ext = format.split('/')[-1]
         image_content = ContentFile(base64.b64decode(imgstr))
         temp_image_name = 'temp_image.' + ext
+        
         with open(temp_image_name, 'wb') as f:
             f.write(image_content.read())
-        driver = compare_faces(temp_image_name)
+        driver = find_face(temp_image_name)
+        
         if driver:
             incident_form = IncidentForm(request.POST)
             if incident_form.is_valid():

@@ -2,42 +2,46 @@ import face_recognition
 from core.models import Citizen
 from facial_recon import settings
 
-def compare_faces(image_path):
-    # Load the captured image
+def find_face(image_path):
     captured_image = face_recognition.load_image_file(image_path)
-
-    # Find face locations in the captured image
     captured_face_locations = face_recognition.face_locations(captured_image)
 
     if not captured_face_locations:
-        return None  # No face detected in the captured image
+        return None
 
-    # Encode the faces in the captured image
-    captured_face_encodings = face_recognition.face_encodings(captured_image, captured_face_locations)
-
-    # Get all citizens
     citizens = Citizen.objects.all().order_by('-pk')
 
-    # Loop through all citizens
     for citizen in citizens:
+        citizen_image_path = citizen.picture.path
+        settings.LOGGER.debug(f'checking: {citizen}')
+        result = match_faces(image_path, citizen_image_path)
+        settings.LOGGER.info(result)
         
-        # Get all images associated with the citizen
-        citizen_image = citizen.picture
-        
-        # Loop through all images of the citizen
-        if citizen_image:
-            # Load the image of the citizen
-            citizen_image_data = face_recognition.load_image_file(citizen_image.path)
-            citizen_face_encodings = face_recognition.face_encodings(citizen_image_data)
+        if result["status"] and result["confidence"] > 0.7:
+            return citizen
 
-            if citizen_face_encodings:
-                # Compare the captured face encoding with the encoding of the citizen's face
-                for encoding in captured_face_encodings:
-                    matches = face_recognition.compare_faces(citizen_face_encodings, encoding,tolerance=0.8)
-                    print(matches)
-                    if any(matches):
-                        # Match found, return the matched citizen
-                        return citizen
-
-    # No match found
     return None
+
+def match_faces(path1: str, path2: str, tolerance: float = 0.8):
+    image1 = face_recognition.load_image_file(path1)
+    image2 = face_recognition.load_image_file(path2)
+
+    face_encodings1 = face_recognition.face_encodings(image1)
+    face_encodings2 = face_recognition.face_encodings(image2)
+
+    if not face_encodings1:
+        return {"status": False, "confidence": 0.0, "message": "No face found in image 1"}
+    if not face_encodings2:
+        return {"status": False, "confidence": 0.0, "message": "No face found in image 2"}
+
+    max_confidence = 0.0
+    for encoding1 in face_encodings1:
+        for encoding2 in face_encodings2:
+            # Compare face encodings and calculate confidence
+            confidence = 1 - face_recognition.face_distance([encoding1], encoding2)[0]
+            max_confidence = max(max_confidence, confidence)
+
+    # Determine match status based on maximum confidence
+    status = max_confidence >= tolerance
+
+    return {"status": status, "confidence": max_confidence}
