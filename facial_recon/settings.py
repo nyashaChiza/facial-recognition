@@ -15,7 +15,7 @@ LOGGER=  loguru.logger
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','ngrok.io','localhost:8006','01f2-41-175-77-95.ngrok-free.app']
+ALLOWED_HOSTS = ['127.0.0.1','ngrok.io','localhost:8006','a72f-2c0f-f8f0-696a-0-dc06-9823-21f8-fb6e.ngrok-free.app']
 
 
 # Application definition

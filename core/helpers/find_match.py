@@ -10,17 +10,22 @@ def find_face(image_path):
         return None
 
     citizens = Citizen.objects.all().order_by('-pk')
-
+    results = []
     for citizen in citizens:
         citizen_image_path = citizen.picture.path
         settings.LOGGER.debug(f'checking: {citizen}')
         result = match_faces(image_path, citizen_image_path)
         settings.LOGGER.info(result)
-        
-        if result["status"] and result["confidence"] > 0.7:
-            return citizen
+        results.append({'driver': citizen, 'score': result['confidence']})
 
-    return None
+    # Sort the results based on the score in descending order
+    results.sort(key=lambda x: x['score'], reverse=True)
+
+    # Return the driver with the highest score
+    if results:
+        return results[0]['driver']
+    else:
+        return None
 
 def match_faces(path1: str, path2: str, tolerance: float = 0.8):
     image1 = face_recognition.load_image_file(path1)
