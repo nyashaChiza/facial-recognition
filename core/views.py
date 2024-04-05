@@ -163,9 +163,27 @@ def capture_driver(request):
             if image_data:
                 format, imgstr = image_data.split(';base64,')
                 ext = format.split('/')[-1]
-                citizen.picture.save(f'citizen_{citizen}.{ext}', ContentFile(base64.b64decode(imgstr)), save=False)
-            citizen.save()
-            messages.success(request, 'Driver added successfully')
+                
+                # Save the image temporarily
+                temp_image_path = 'temp_image.' + ext
+                with open(temp_image_path, 'wb') as f:
+                    f.write(base64.b64decode(imgstr))
+                
+                # Perform face detection on the image
+                detection = find_face(temp_image_path)
+                settings.LOGGER.info(detection)
+                
+                if detection.get('status') if detection else False:
+                    messages.warning(request, f'A face is detected in the captured image. Please make sure it belongs to the driver {detection.get("driver")}.')
+                else:
+                    citizen.picture.save(f'citizen_{citizen}.{ext}', ContentFile(base64.b64decode(imgstr)), save=False)
+                    citizen.save()
+                    messages.success(request, 'Driver added successfully')
+                
+                # Remove the temporary image file
+                os.remove(temp_image_path)
+            else:
+                messages.warning(request, 'No image data provided')
         else:
             messages.warning(request, 'Invalid Driver Information')
     else:
