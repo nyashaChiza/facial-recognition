@@ -182,8 +182,6 @@ def capture_driver(request):
                 if detection.get('status') if detection else False:
                     messages.warning(request, f'A face is detected in the captured image. Please make sure it belongs to the driver {detection.get("driver")}.')
                 
-                elif detection is None:
-                    messages.warning(request, f'Driver Face not detected in the captured image')
                 else:
                     citizen.picture.save(f'citizen_{citizen}.{ext}', ContentFile(base64.b64decode(imgstr)), save=False)
                     citizen.save()
@@ -232,7 +230,8 @@ def capture_incident(request):
                 messages.warning(request, f'Invalid Driver Information for {driver}')
         else:
             os.remove(temp_image_name)
-            messages.warning(request, 'Driver Face not detected in the captured image')
+            messages.warning(request, 'Driver Face not detected in the captured image, please try again')
+            return redirect(request.path)
     else:
         messages.warning(request, 'Method Not Allowed')
         
