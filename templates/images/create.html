@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Face Detection</title>
+</head>
+<body>
+    <h1>Webcam Face Detection</h1>
+    <video id="video" width="640" height="480" autoplay></video>
+    <button id="capture-submit-btn">Capture and Submit</button>
+    <canvas id="canvas" width="640" height="480" style="display: none;"></canvas>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const captureSubmitButton = document.getElementById('capture-submit-btn');
+
+        // Function to retrieve CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Get CSRF token from the cookie
+        const csrftoken = getCookie('csrftoken');
+
+        // Get access to the webcam
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+            })
+            .catch(err => {
+                console.error('Error accessing webcam:', err);
+            });
+
+        // Capture image from webcam and submit
+        captureSubmitButton.addEventListener('click', () => {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+            
+            // Convert canvas data to Blob object
+            canvas.toBlob(function(blob) {
+                // Create FormData object
+                const formData = new FormData();
+                
+                // Append blob data to FormData object
+                formData.append('image_data', blob, 'image.jpg'); // 'image.jpg' is the filename
+                console.log(formData);
+                // Send captured image to Django view using AJAX
+                fetch("{% url 'capture_image' %}", {
+                    method: 'POST',
+                    headers: {
+                        // Don't set Content-Type header for FormData
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: formData,
+                })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Failed to detect faces');
+                    }
+                })
+                .then(data => {
+                    console.log('Number of faces detected:', data.num_faces);
+                    // You can update the UI here based on the number of faces detected
+                })
+                .catch(error => {
+                    console.error('Error detecting faces:', error);
+                });
+            }, 'image/jpeg');
+        });
+    </script>
+</body>
+</html>

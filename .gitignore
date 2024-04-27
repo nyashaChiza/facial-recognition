@@ -1,0 +1,7 @@
+/media
+.env
+*.sqlite3
+.DS_Store
+/face-recon
+*.pyc
+/__pycache__
