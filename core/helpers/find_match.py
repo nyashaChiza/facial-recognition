@@ -1,6 +1,9 @@
 import face_recognition
 from core.models import Citizen
 from facial_recon import settings
+from core.models import Config
+
+config = Config.objects.first()
 
 def find_face(image_path, tolarence = 0.6):
     captured_image = face_recognition.load_image_file(image_path)
@@ -29,8 +32,8 @@ def find_face(image_path, tolarence = 0.6):
 
     else:
         return None
-
-def match_faces(path1: str, path2: str, tolerance: float = 0.75):
+threshold = config.maximum_detection_threshold 
+def match_faces(path1: str, path2: str, tolerance: float = threshold ):
     image1 = face_recognition.load_image_file(path1)
     image2 = face_recognition.load_image_file(path2)
 

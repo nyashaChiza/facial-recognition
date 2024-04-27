@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Citizen, Incident, CitizenImage
+from .models import Citizen, Incident, CitizenImage, Config
 
 class IncidentsInline(admin.TabularInline):
     model = Incident
@@ -28,3 +28,21 @@ class CitizenImagesAdmin(admin.ModelAdmin):
     list_filter = ('created', 'updated')
     search_fields = ['citizen__first_name', 'citizen__last_name']
 
+
+
+class ConfigAdmin(admin.ModelAdmin):
+    list_display = ('minimum_detection_threshold', 'maximum_detection_threshold', 'maximum_points_threshold', 'created', 'updated')
+    search_fields = ('minimum_detection_threshold', 'maximum_detection_threshold', 'maximum_points_threshold')
+    list_filter = ('created', 'updated')
+    readonly_fields = ('created', 'updated')
+    fieldsets = (
+        (None, {
+            'fields': ('minimum_detection_threshold', 'maximum_detection_threshold', 'maximum_points_threshold')
+        }),
+        ('Timestamps', {
+            'fields': ('created', 'updated'),
+            'classes': ('collapse',),
+        }),
+    )
+
+admin.site.register(Config, ConfigAdmin)

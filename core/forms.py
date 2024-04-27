@@ -1,7 +1,7 @@
 # forms.py (inside your app)
 
 from django import forms
-from .models import Citizen, Incident, CitizenImage
+from .models import Citizen, Incident, CitizenImage, Config
 
 class CitizenForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
@@ -40,7 +40,18 @@ class BlacklistForm(forms.ModelForm):
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
         self.fields['is_blacklisted'].initial = True
-    
+        
+
+class ConfigForm(forms.ModelForm):
+    class Meta:
+        model = Config
+        fields = ('minimum_detection_threshold', 'maximum_detection_threshold', 'maximum_points_threshold') 
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field_name, field in self.fields.items():
+            field.widget.attrs['class'] = 'form-control'
+        
 
 
 class IncidentForm(forms.ModelForm):

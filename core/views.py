@@ -13,10 +13,13 @@ from django.http import  HttpResponse
 from core.helpers import find_face
 from django.shortcuts import render, redirect
 from django.core.files.base import ContentFile
-from .models import Citizen, Incident, CitizenImage
-from .forms import CitizenSearchForm, CitizenForm, IncidentForm
+from .models import Citizen, Incident, CitizenImage, Config
+from .forms import CitizenSearchForm, CitizenForm, IncidentForm, ConfigForm
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, ListView, DetailView, CreateView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
+from core.models import Config
+
+config = Config.objects.first()
 
 
 
@@ -26,6 +29,7 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_form'] = CitizenSearchForm()
+        context['config'] = Config.objects.first()
         return context
 
 class CitizenListView(ListView):
@@ -156,7 +160,6 @@ def generate_incident_report(request, citizen_id):
     return response
 
 
-
 def capture_driver(request):
     if request.method == 'POST':
         citizen_form = CitizenForm(request.POST)
@@ -215,7 +218,7 @@ def capture_incident(request):
                 incident = incident_form.save(commit=False)
                 incident.citizen = driver
                 incident.save()
-                if incident.citizen.get_total_points() >30:
+                if incident.citizen.get_total_points() > config.maximum_points_threshold :
                     incident.citizen.is_blacklisted = True
                     incident.citizen.blacklist_reason = 'Points Exceeded Limit'
                     incident.citizen.save()
@@ -234,3 +237,17 @@ def capture_incident(request):
         messages.warning(request, 'Method Not Allowed')
         
     return redirect(reverse('incident-list'))
+
+class ConfigUpdateView(UpdateView):
+        template_name = 'config/update.html'
+        model= Config
+        form_class = ConfigForm
+        
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            context['config'] = Config.objects.first()
+            return context
+        
+        def get_success_url(self):
+            messages.success(self.request, 'System configuration updated successfully')
+            return reverse('home')
