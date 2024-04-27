@@ -3,8 +3,11 @@ import cv2
 import numpy as np
 import face_recognition
 from loguru import logger
+from core.models import Config
 
-FACE_MATCH_THRESHOLD = 0.45
+
+config = Config.objects.first()
+FACE_MATCH_THRESHOLD = config.minimum_detection_threshold
 
 def face_confidence(face_distance, face_match_threshold=FACE_MATCH_THRESHOLD):
     range = 1.0 - face_match_threshold

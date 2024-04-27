@@ -30,6 +30,7 @@
                                 <th scope="col">ID Type</th>
                                 <th scope="col">ID Number</th>
                                 <th scope="col">Reason</th>
+                                <th scope="col">Total Points</th>
                                 <th scope="col">Action</th>
                                
                             </tr>
@@ -43,6 +44,7 @@
                                 <td> {{ citizen.id_type }}</td>
                                 <td>{{ citizen.id_number}}</td>
                                 <td>{{ citizen.blacklist_reason }}</td>
+                                <td>{{ citizen.get_total_points }}</td>
                                 <td><a class="btn btn-sm bg-light" href="{% url 'citizen-detail' citizen.pk %}">Details</a></td>
                                 
                             </tr>

@@ -13,10 +13,13 @@ from django.http import  HttpResponse
 from core.helpers import find_face
 from django.shortcuts import render, redirect
 from django.core.files.base import ContentFile
-from .models import Citizen, Incident, CitizenImage
-from .forms import CitizenSearchForm, CitizenForm, IncidentForm
+from .models import Citizen, Incident, CitizenImage, Config
+from .forms import CitizenSearchForm, CitizenForm, IncidentForm, ConfigForm
 from django.shortcuts import render, redirect, get_object_or_404
-from django.views.generic import TemplateView, ListView, DetailView, CreateView
+from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
+from core.models import Config
+
+config = Config.objects.first()
 
 
 
@@ -26,6 +29,7 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_form'] = CitizenSearchForm()
+        context['config'] = Config.objects.first()
         return context
 
 class CitizenListView(ListView):
@@ -129,13 +133,16 @@ def generate_incident_report(request, citizen_id):
     p.drawString(100, 780, f"Is Blacklist : {'Yes' if citizen.is_blacklisted else "No"} ")
     p.drawString(100, 760, f"ID Type: {citizen.id_type} ")
     p.drawString(100, 740, f"ID Number: {citizen.id_number} ")
-    
+    p.drawString(100, 720, f"Total Points: {citizen.get_total_points()} ")
+
     if citizen.is_blacklisted:
-        p.drawString(100, 720, f"Blacklist Reason: {citizen.blacklist_reason} ")
-    y_position = 695
+        p.drawString(100, 700, f"Blacklist Reason: {citizen.blacklist_reason} ")
+    y_position = 680
     for incident in incidents:
         y_position -= 20
         p.drawString(100, y_position, f"Title: {incident.title}")
+        y_position -= 15
+        p.drawString(100, y_position, f"Points: {incident.points}")
         y_position -= 20
         p.drawString(100, y_position, f"Vehicle Reg Number: {incident.vehicle_registration_number}")
         y_position -= 15
@@ -151,7 +158,6 @@ def generate_incident_report(request, citizen_id):
     p.save()
 
     return response
-
 
 
 def capture_driver(request):
@@ -175,6 +181,9 @@ def capture_driver(request):
                 
                 if detection.get('status') if detection else False:
                     messages.warning(request, f'A face is detected in the captured image. Please make sure it belongs to the driver {detection.get("driver")}.')
+                
+                elif detection is None:
+                    messages.warning(request, f'Driver Face not detected in the captured image')
                 else:
                     citizen.picture.save(f'citizen_{citizen}.{ext}', ContentFile(base64.b64decode(imgstr)), save=False)
                     citizen.save()
@@ -203,11 +212,16 @@ def capture_incident(request):
         driver = find_face(temp_image_name)
         
         if driver:
+            driver = driver.get('driver')
             incident_form = IncidentForm(request.POST)
             if incident_form.is_valid():
                 incident = incident_form.save(commit=False)
-                incident.citizen = driver.get('driver')
+                incident.citizen = driver
                 incident.save()
+                if incident.citizen.get_total_points() > config.maximum_points_threshold :
+                    incident.citizen.is_blacklisted = True
+                    incident.citizen.blacklist_reason = 'Points Exceeded Limit'
+                    incident.citizen.save()
                 os.remove(temp_image_name)
                 if driver.is_blacklisted:
                     messages.warning(request, f'Incident for {driver} saved successfully (Please Note This is a blacklisted Driver)')
@@ -223,3 +237,17 @@ def capture_incident(request):
         messages.warning(request, 'Method Not Allowed')
         
     return redirect(reverse('incident-list'))
+
+class ConfigUpdateView(UpdateView):
+        template_name = 'config/update.html'
+        model= Config
+        form_class = ConfigForm
+        
+        def get_context_data(self, **kwargs):
+            context = super().get_context_data(**kwargs)
+            context['config'] = Config.objects.first()
+            return context
+        
+        def get_success_url(self):
+            messages.success(self.request, 'System configuration updated successfully')
+            return reverse('home')

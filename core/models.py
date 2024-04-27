@@ -15,12 +15,15 @@ class Citizen(models.Model):
     def __str__(self) -> str:
         return f"{self.first_name} {self.last_name}"
     
+    def get_total_points(self):
+        return sum(incident.points for incident in self.incidents.all())
     
 class Incident(models.Model):
     citizen = models.ForeignKey(Citizen, on_delete=models.CASCADE, related_name='incidents', )
     title = models.CharField(max_length=255, blank=True, null=True)
     vehicle_registration_number = models.CharField(max_length=255, blank=True, null=True)
     location = models.CharField(max_length=255, blank=True, null=True)
+    points = models.IntegerField(default=1)
     comment = models.TextField()
     incident_date = models.DateField(null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
@@ -38,3 +41,12 @@ class CitizenImage(models.Model):
     
     def __str__(self) -> str:
         return f"{self.citizen.first_name} {self.citizen.last_name}"
+
+
+class Config(models.Model):
+    minimum_detection_threshold = models.IntegerField(default=1)
+    maximum_detection_threshold = models.IntegerField(default=99)
+    maximum_points_threshold = models.IntegerField(default=1)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+    

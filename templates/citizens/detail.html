@@ -39,6 +39,7 @@
                                     <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">ID Number:</span> {{ citizen.id_number }}</li>
                                     <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">Is Blacklisted:</span> {{ citizen.is_blacklisted }}</li>
                                     <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">Number Of Incidents:</span> {{ citizen.incidents.count}} </li>
+                                    <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">Total Points:</span> {{ citizen.get_total_points}} </li>
                                     {% if citizen.is_blacklisted %}<li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">Blacklist Reason:</span> {{ citizen.blacklist_reason}} </li>{% endif %}
 
                                 </ul>
@@ -80,6 +81,9 @@
                                             </p>
                                             <p class="incident-description">
                                                 Comment - {{ incident.comment }}
+                                            </p>
+                                            <p class="incident-description">
+                                                Points - {{ incident.points }}
                                             </p>
                                             <p class="incident-description">
                                                 Location - {{ incident.location }}

@@ -43,9 +43,12 @@
                                             class="display-26 text-secondary me-2 font-weight-600">ID Number:</span> 
                                             {{incident.citizen.id_number }}</li>
                                     <li class="mb-2 mb-xl-3 display-28"><span
-                                            class="display-26 text-secondary me-2 font-weight-600">Number Of
-                                            Incidents:</span> {{ incident.citizen.incidents.count}} </li>
-                                    <li class="mb-2 mb-xl-3 display-28"><span
+                                            class="display-26 text-secondary me-2 font-weight-600">Number Of incidents
+                                            </span> {{ incident.citizen.incidents.count}} </li>
+                                    <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">Total Points
+                                        :</span> {{ incident.points}} </li>
+                                        
+                                            <li class="mb-2 mb-xl-3 display-28"><span
                                             class="display-26 text-secondary me-2 font-weight-600">Is Driver
                                             Blacklisted:</span> {{ incident.citizen.is_blacklisted }} </li>
                                     {% if incident.citizen.is_blacklisted %}<li class="mb-2 mb-xl-3 display-28"><span
