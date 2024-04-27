@@ -178,6 +178,9 @@ def capture_driver(request):
                 
                 if detection.get('status') if detection else False:
                     messages.warning(request, f'A face is detected in the captured image. Please make sure it belongs to the driver {detection.get("driver")}.')
+                
+                elif detection is None:
+                    messages.warning(request, f'Driver Face not detected in the captured image')
                 else:
                     citizen.picture.save(f'citizen_{citizen}.{ext}', ContentFile(base64.b64decode(imgstr)), save=False)
                     citizen.save()
@@ -204,9 +207,9 @@ def capture_incident(request):
         with open(temp_image_name, 'wb') as f:
             f.write(image_content.read())
         driver = find_face(temp_image_name)
-        driver = driver.get('driver')
         
         if driver:
+            driver = driver.get('driver')
             incident_form = IncidentForm(request.POST)
             if incident_form.is_valid():
                 incident = incident_form.save(commit=False)

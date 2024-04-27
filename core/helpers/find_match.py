@@ -7,6 +7,7 @@ def find_face(image_path, tolarence = 0.6):
     captured_face_locations = face_recognition.face_locations(captured_image)
 
     if not captured_face_locations:
+        settings.LOGGER.error(f'failed to capture face')
         return None
 
     citizens = Citizen.objects.all().order_by('-pk')
@@ -22,8 +23,10 @@ def find_face(image_path, tolarence = 0.6):
     results.sort(key=lambda x: x['score'], reverse=True)
 
     # Return the driver with the highest score
+    settings.LOGGER.debug(f'sorted list: {results}')
     if results :
         return results[0]
+
     else:
         return None
 
@@ -35,16 +38,20 @@ def match_faces(path1: str, path2: str, tolerance: float = 0.75):
     face_encodings2 = face_recognition.face_encodings(image2)
 
     if not face_encodings1:
-        return {"status": False, "confidence": 0.0, "message": "No face found in image 1"}
+        return {"status": False, "confidence": 0.0, "message": "No face found in new image "}
     if not face_encodings2:
-        return {"status": False, "confidence": 0.0, "message": "No face found in image 2"}
+        return {"status": False, "confidence": 0.0, "message": "No face found in existing image "}
 
     max_confidence = 0.0
     for encoding1 in face_encodings1:
-        for encoding2 in face_encodings2:
-            # Compare face encodings and calculate confidence
-            confidence = 1 - face_recognition.face_distance([encoding1], encoding2)[0]
-            max_confidence = max(max_confidence, confidence)
+        # Compare face encoding from image1 with all face encodings from image2
+        distances = face_recognition.face_distance(face_encodings2, encoding1)
+        # Find the minimum distance (maximum similarity) among all comparisons
+        min_distance = min(distances)
+        # Calculate confidence based on the minimum distance
+        confidence = 1 - min_distance
+        # Update max_confidence if the new confidence is higher
+        max_confidence = max(max_confidence, confidence)
 
     # Determine match status based on maximum confidence
     status = max_confidence >= tolerance
