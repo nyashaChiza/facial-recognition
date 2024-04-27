@@ -5,3 +5,4 @@
 /face-recon
 *.pyc
 /__pycache__
+*.jpeg 

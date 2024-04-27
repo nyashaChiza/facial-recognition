@@ -206,7 +206,7 @@ def capture_incident(request):
             incident_form = IncidentForm(request.POST)
             if incident_form.is_valid():
                 incident = incident_form.save(commit=False)
-                incident.citizen = driver
+                incident.citizen = driver.get('driver')
                 incident.save()
                 os.remove(temp_image_name)
                 if driver.is_blacklisted:
