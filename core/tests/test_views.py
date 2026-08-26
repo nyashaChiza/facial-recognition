@@ -103,3 +103,67 @@ class CaptureIncidentViewTests(TestCase):
 
         self.assertEqual(response.status_code, 302)
         mock_find_face.assert_called_once()
+
+    def test_missing_image_data_redirects_with_warning_instead_of_crashing(self):
+        response = self.client.post(reverse('incident-capture'), {'comment': 'test'})
+
+        self.assertRedirects(response, reverse('incident-list'))
+
+
+class CaptureDriverViewTests(TestCase):
+    @mock.patch('core.services.find_face')
+    def test_saves_new_driver_when_no_duplicate_found(self, mock_find_face):
+        mock_find_face.return_value = None
+
+        response = self.client.post(
+            reverse('driver-create'),
+            {
+                'first_name': 'Jane', 'last_name': 'Doe',
+                'id_type': 'Passport', 'id_number': 'X1',
+                'image_data': 'data:image/png;base64,ZmFrZQ==',
+            },
+        )
+
+        self.assertRedirects(response, reverse('citizen-list'))
+        self.assertTrue(Citizen.objects.filter(id_number='X1').exists())
+
+    @mock.patch('core.services.find_face')
+    def test_warns_without_saving_when_duplicate_found(self, mock_find_face):
+        existing = Citizen.objects.create(first_name="John", last_name="Roe", id_type="Passport", id_number="X2")
+        mock_find_face.return_value = {'status': True, 'driver': existing, 'score': 0.9}
+
+        response = self.client.post(
+            reverse('driver-create'),
+            {
+                'first_name': 'Jane', 'last_name': 'Doe',
+                'id_type': 'Passport', 'id_number': 'X1',
+                'image_data': 'data:image/png;base64,ZmFrZQ==',
+            },
+        )
+
+        self.assertRedirects(response, reverse('citizen-list'))
+        self.assertFalse(Citizen.objects.filter(id_number='X1').exists())
+
+    def test_missing_image_data_does_not_crash(self):
+        response = self.client.post(
+            reverse('driver-create'),
+            {'first_name': 'Jane', 'last_name': 'Doe', 'id_type': 'Passport', 'id_number': 'X1'},
+        )
+
+        self.assertRedirects(response, reverse('citizen-list'))
+        self.assertFalse(Citizen.objects.filter(id_number='X1').exists())
+
+
+class GenerateIncidentReportTests(TestCase):
+    def test_returns_pdf_for_existing_citizen(self):
+        citizen = Citizen.objects.create(first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1")
+
+        response = self.client.get(reverse('generate_incident_report', args=[citizen.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], 'application/pdf')
+        self.assertIn('Jane Doe Report.pdf', response['Content-Disposition'])
+
+    def test_404_for_missing_citizen(self):
+        response = self.client.get(reverse('generate_incident_report', args=[999]))
+        self.assertEqual(response.status_code, 404)

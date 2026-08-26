@@ -1,18 +1,16 @@
 import os
-import base64
 
-from django.conf import settings
 from django.db import models
 from django.urls import reverse
 from reportlab.pdfgen import canvas
 from django.contrib import messages
 from django.http import HttpResponse
 from core.helpers import find_face
-from django.core.files.base import ContentFile
 from .models import Citizen, Incident, CitizenImage, Config
 from .forms import BlacklistForm, CitizenSearchForm, CitizenForm, IncidentForm, ConfigForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
+from core.services import InvalidImageDataError, decode_captured_image, write_temp_image, process_driver_capture
 
 
 class IndexView(TemplateView):
@@ -164,35 +162,20 @@ def capture_driver(request):
         if citizen_form.is_valid():
             citizen = citizen_form.save(commit=False)
             image_data = request.POST.get('image_data')
-            if image_data:
-                format, imgstr = image_data.split(';base64,')
-                ext = format.split('/')[-1]
-
-                # Save the image temporarily
-                temp_image_path = 'temp_image.' + ext
-                with open(temp_image_path, 'wb') as f:
-                    f.write(base64.b64decode(imgstr))
-
-                # Perform face detection on the image
-                detection = find_face(temp_image_path)
-                settings.LOGGER.info(detection)
-
-                if detection.get('status') if detection else False:
+            try:
+                result = process_driver_capture(citizen, image_data)
+            except InvalidImageDataError as e:
+                messages.warning(request, str(e))
+            else:
+                if result['status'] == 'duplicate':
+                    driver = result['detection'].get('driver')
                     messages.warning(
                         request,
                         'A face is detected in the captured image. '
-                        f'Please make sure it belongs to the driver {detection.get("driver")}.'
+                        f'Please make sure it belongs to the driver {driver}.'
                     )
-
                 else:
-                    citizen.picture.save(f'citizen_{citizen}.{ext}', ContentFile(base64.b64decode(imgstr)), save=False)
-                    citizen.save()
                     messages.success(request, 'Driver added successfully')
-
-                # Remove the temporary image file
-                os.remove(temp_image_path)
-            else:
-                messages.warning(request, 'No image data provided')
         else:
             messages.warning(request, 'Invalid Driver Information')
     else:
@@ -203,14 +186,18 @@ def capture_driver(request):
 
 def capture_incident(request):
     if request.method == 'POST':
-        format, imgstr = request.POST.get('image_data').split(';base64,')
-        ext = format.split('/')[-1]
-        image_content = ContentFile(base64.b64decode(imgstr))
-        temp_image_name = 'temp_image.' + ext
+        image_data = request.POST.get('image_data')
+        try:
+            ext, decoded = decode_captured_image(image_data)
+        except InvalidImageDataError as e:
+            messages.warning(request, str(e))
+            return redirect(reverse('incident-list'))
 
-        with open(temp_image_name, 'wb') as f:
-            f.write(image_content.read())
-        driver = find_face(temp_image_name)
+        temp_image_name = write_temp_image(decoded, ext)
+        try:
+            driver = find_face(temp_image_name)
+        finally:
+            os.remove(temp_image_name)
 
         if driver:
             driver = driver.get('driver')
@@ -225,7 +212,6 @@ def capture_incident(request):
                     incident.citizen.is_blacklisted = True
                     incident.citizen.blacklist_reason = 'Points Exceeded Limit'
                     incident.citizen.save()
-                os.remove(temp_image_name)
                 if driver.is_blacklisted:
                     messages.warning(
                         request,
@@ -237,7 +223,6 @@ def capture_incident(request):
             else:
                 messages.warning(request, f'Invalid Driver Information for {driver}')
         else:
-            os.remove(temp_image_name)
             messages.warning(request, 'Driver Face not detected in the captured image, please try again')
             return redirect(request.path)
     else:
