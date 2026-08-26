@@ -13,6 +13,10 @@ from core.models import Config
 DEFAULT_FACE_MATCH_THRESHOLD = 1
 
 
+class FaceRecognitionError(Exception):
+    """Raised when the live-camera recognition loop hits an unrecoverable error."""
+
+
 def get_face_match_threshold():
     config = Config.objects.first()
     return config.minimum_detection_threshold if config else DEFAULT_FACE_MATCH_THRESHOLD
@@ -41,21 +45,26 @@ class FaceRecognition:
 
     def load_known_faces(self):
         try:
-            for image in os.listdir("test-images"):
+            image_names = os.listdir("test-images")
+        except OSError as e:
+            logger.error(f"Error reading known-faces directory: {e}")
+            raise FaceRecognitionError("Could not read known-faces directory") from e
+
+        for image in image_names:
+            try:
                 face_image = face_recognition.load_image_file(f"test-images/{image}")
                 face_encodings = face_recognition.face_encodings(face_image)
+            except OSError as e:
+                logger.error(f"Error loading image file {image}: {e}")
+                continue
 
-                if face_encodings:
-                    self.known_face_encodings.append(face_encodings[0])
-                    self.known_face_names.append(image)
-                else:
-                    logger.warning(f"No face found in image: {image}")
-                    self.known_face_encodings.append(None)
-                    self.known_face_names.append(image)
-        except FileNotFoundError as e:
-            logger.error(f"Error loading image file: {e}")
-        except Exception as e:
-            logger.error(f"An unexpected error occurred: {e}")
+            if face_encodings:
+                self.known_face_encodings.append(face_encodings[0])
+                self.known_face_names.append(image)
+            else:
+                logger.warning(f"No face found in image: {image}")
+                self.known_face_encodings.append(None)
+                self.known_face_names.append(image)
 
     def run_recognition(self, frame):
         try:
@@ -96,19 +105,21 @@ class FaceRecognition:
                     logger.info('Exiting facial recognition...')
         except cv2.error as e:
             logger.error(f"OpenCV Error: {e}")
-        except Exception as e:
-            logger.error(f"An unexpected error occurred: {e}")
+            raise FaceRecognitionError("OpenCV error during recognition") from e
 
     def cleanup(self):
         try:
             cv2.destroyAllWindows()
-        except Exception as e:
+        except cv2.error as e:
             logger.error(f"An error occurred during cleanup: {e}")
+            raise FaceRecognitionError("OpenCV error during cleanup") from e
 
 
 if __name__ == "__main__":
+    face_recon = None
     try:
         face_recon = FaceRecognition()
         face_recon.run_recognition()
     finally:
-        face_recon.cleanup()
+        if face_recon is not None:
+            face_recon.cleanup()
