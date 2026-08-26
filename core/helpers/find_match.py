@@ -3,14 +3,23 @@ from core.models import Citizen
 from facial_recon import settings
 from core.models import Config
 
-config = Config.objects.first()
+# Config.maximum_detection_threshold's model default, used when no Config
+# row exists yet (e.g. right after a fresh clone, before an admin has
+# visited the config screen).
+DEFAULT_MATCH_TOLERANCE = 99
 
-def find_face(image_path, tolarence = 0.6):
+
+def get_match_tolerance():
+    config = Config.objects.first()
+    return config.maximum_detection_threshold if config else DEFAULT_MATCH_TOLERANCE
+
+
+def find_face(image_path, tolerance=0.6):
     captured_image = face_recognition.load_image_file(image_path)
     captured_face_locations = face_recognition.face_locations(captured_image)
 
     if not captured_face_locations:
-        settings.LOGGER.error(f'failed to capture face')
+        settings.LOGGER.error('failed to capture face')
         return None
 
     citizens = Citizen.objects.all().order_by('-pk')
@@ -18,7 +27,7 @@ def find_face(image_path, tolarence = 0.6):
     for citizen in citizens:
         citizen_image_path = citizen.picture.path
         settings.LOGGER.debug(f'checking: {citizen}')
-        result = match_faces(image_path, citizen_image_path, tolarence)
+        result = match_faces(image_path, citizen_image_path, tolerance)
         settings.LOGGER.info(result)
         results.append({'driver': citizen, 'score': result['confidence'], 'status': result["status"]})
 
@@ -27,13 +36,17 @@ def find_face(image_path, tolarence = 0.6):
 
     # Return the driver with the highest score
     settings.LOGGER.debug(f'sorted list: {results}')
-    if results :
+    if results:
         return results[0]
 
     else:
         return None
-threshold = config.maximum_detection_threshold 
-def match_faces(path1: str, path2: str, tolerance: float = threshold ):
+
+
+def match_faces(path1: str, path2: str, tolerance: float = None):
+    if tolerance is None:
+        tolerance = get_match_tolerance()
+
     image1 = face_recognition.load_image_file(path1)
     image2 = face_recognition.load_image_file(path2)
 

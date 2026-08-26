@@ -1,23 +1,36 @@
 
+import os
+
 import cv2
 import numpy as np
 import face_recognition
 from loguru import logger
 from core.models import Config
 
+# Config.minimum_detection_threshold's model default, used when no Config
+# row exists yet (e.g. right after a fresh clone, before an admin has
+# visited the config screen).
+DEFAULT_FACE_MATCH_THRESHOLD = 1
 
-config = Config.objects.first()
-FACE_MATCH_THRESHOLD = config.minimum_detection_threshold
 
-def face_confidence(face_distance, face_match_threshold=FACE_MATCH_THRESHOLD):
-    range = 1.0 - face_match_threshold
-    linear_value = (1.0 - face_distance) / (range * 2.0)
+def get_face_match_threshold():
+    config = Config.objects.first()
+    return config.minimum_detection_threshold if config else DEFAULT_FACE_MATCH_THRESHOLD
+
+
+def face_confidence(face_distance, face_match_threshold=None):
+    if face_match_threshold is None:
+        face_match_threshold = get_face_match_threshold()
+
+    match_range = 1.0 - face_match_threshold
+    linear_value = (1.0 - face_distance) / (match_range * 2.0)
 
     if face_distance > face_match_threshold:
         value = round(linear_value * 100, 2)
         return f"{value}%"
     else:
-        return f"confidence below threshold"
+        return "confidence below threshold"
+
 
 class FaceRecognition:
     def __init__(self) -> None:
@@ -91,6 +104,7 @@ class FaceRecognition:
             cv2.destroyAllWindows()
         except Exception as e:
             logger.error(f"An error occurred during cleanup: {e}")
+
 
 if __name__ == "__main__":
     try:
