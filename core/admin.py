@@ -1,13 +1,16 @@
 from django.contrib import admin
 from .models import Citizen, Incident, CitizenImage, Config
 
+
 class IncidentsInline(admin.TabularInline):
     model = Incident
     extra = 1
 
+
 class CitizenImagesInline(admin.TabularInline):
     model = CitizenImage
     extra = 1
+
 
 @admin.register(Citizen)
 class CitizenAdmin(admin.ModelAdmin):
@@ -16,11 +19,13 @@ class CitizenAdmin(admin.ModelAdmin):
     inlines = [IncidentsInline, CitizenImagesInline]
     list_filter = ('is_blacklisted',)
 
+
 @admin.register(Incident)
 class IncidentsAdmin(admin.ModelAdmin):
-    list_display = ('citizen','title', 'comment', 'created', 'updated')
+    list_display = ('citizen', 'title', 'comment', 'created', 'updated')
     list_filter = ('created', 'updated')
     search_fields = ['citizen__first_name', 'citizen__last_name', 'comment']
+
 
 @admin.register(CitizenImage)
 class CitizenImagesAdmin(admin.ModelAdmin):
@@ -29,9 +34,11 @@ class CitizenImagesAdmin(admin.ModelAdmin):
     search_fields = ['citizen__first_name', 'citizen__last_name']
 
 
-
 class ConfigAdmin(admin.ModelAdmin):
-    list_display = ('minimum_detection_threshold', 'maximum_detection_threshold', 'maximum_points_threshold', 'created', 'updated')
+    list_display = (
+        'minimum_detection_threshold', 'maximum_detection_threshold',
+        'maximum_points_threshold', 'created', 'updated',
+    )
     search_fields = ('minimum_detection_threshold', 'maximum_detection_threshold', 'maximum_points_threshold')
     list_filter = ('created', 'updated')
     readonly_fields = ('created', 'updated')
@@ -44,5 +51,6 @@ class ConfigAdmin(admin.ModelAdmin):
             'classes': ('collapse',),
         }),
     )
+
 
 admin.site.register(Config, ConfigAdmin)

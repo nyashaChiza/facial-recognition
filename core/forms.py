@@ -3,6 +3,7 @@
 from django import forms
 from .models import Citizen, Incident, CitizenImage, Config
 
+
 class CitizenForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CitizenForm, self).__init__(*args, **kwargs)
@@ -12,7 +13,7 @@ class CitizenForm(forms.ModelForm):
     class Meta:
         model = Citizen
         fields = '__all__'
-        exclude = ('picture','is_blacklisted', 'blacklist_reason')
+        exclude = ('picture', 'is_blacklisted', 'blacklist_reason')
 
 
 class CitizenSearchForm(forms.Form):
@@ -20,7 +21,8 @@ class CitizenSearchForm(forms.Form):
         label='Search',
         widget=forms.TextInput(attrs={'class': 'form-control bg-white border-0 px-1'})
     )
-    
+
+
 class BlacklistForm(forms.ModelForm):
     class Meta:
         model = Citizen
@@ -35,23 +37,16 @@ class BlacklistForm(forms.ModelForm):
             field.widget.attrs['class'] = 'form-control'
         self.fields['is_blacklisted'].initial = True
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'form-control'
-        self.fields['is_blacklisted'].initial = True
-        
 
 class ConfigForm(forms.ModelForm):
     class Meta:
         model = Config
-        fields = ('minimum_detection_threshold', 'maximum_detection_threshold', 'maximum_points_threshold') 
+        fields = ('minimum_detection_threshold', 'maximum_detection_threshold', 'maximum_points_threshold')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             field.widget.attrs['class'] = 'form-control'
-        
 
 
 class IncidentForm(forms.ModelForm):
@@ -64,12 +59,10 @@ class IncidentForm(forms.ModelForm):
 
     class Meta:
         model = Incident
-        fields = ['title','vehicle_registration_number','points', 'location', 'comment', 'incident_date', 'image_data']
+        fields = ['title', 'vehicle_registration_number', 'points', 'location', 'comment', 'incident_date', 'image_data']
         widgets = {
             'incident_date': forms.DateInput(attrs={'type': 'date'})
         }
-
-
 
 
 class CitizenImageForm(forms.ModelForm):

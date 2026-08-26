@@ -1,14 +1,15 @@
 # helpers.py
-from faker import Faker
-from core.models import Citizen, Incident, CitizenImage
-from django.core.files import File
-from django.core.files.temp import NamedTemporaryFile
 import random
-from django.conf import settings
 from datetime import timedelta
+
+from faker import Faker
+from django.conf import settings
 from django.utils import timezone
 
+from core.models import Citizen, Incident, CitizenImage
+
 fake = Faker()
+
 
 def generate_random_data(num_citizens=25, num_incidents_per_citizen=50):
     for _ in range(num_citizens):
@@ -25,7 +26,7 @@ def generate_random_data(num_citizens=25, num_incidents_per_citizen=50):
         CitizenImage.objects.create(citizen=citizen)
         settings.LOGGER.info(f"Driver created: {citizen}")
         # Generate fake Incident data
-        for _ in range(random.randint(0,num_incidents_per_citizen)):
+        for _ in range(random.randint(0, num_incidents_per_citizen)):
             incident = Incident.objects.create(
                 citizen=citizen,
                 title=fake.sentence(),
@@ -33,5 +34,3 @@ def generate_random_data(num_citizens=25, num_incidents_per_citizen=50):
                 incident_date=timezone.now() - timedelta(days=random.randint(1, 130))
             )
             settings.LOGGER.info(f"Incident created: {incident}")
-
-
