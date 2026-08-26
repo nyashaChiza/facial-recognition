@@ -95,7 +95,12 @@ pip-compile requirements.in
 pip-compile requirements-dev.in
 ```
 
-[Dependabot](.github/dependabot.yml) opens a weekly PR for outdated pip and GitHub Actions dependencies.
+[Dependabot](.github/dependabot.yml) opens a weekly PR for outdated pip and GitHub Actions dependencies. CI also runs [`pip-audit`](https://pypi.org/project/pip-audit/) against `requirements.txt` on every push/PR to catch known vulnerabilities:
+
+```bash
+pip install pip-audit
+pip-audit -r requirements.txt --desc
+```
 
 ## Important Note
 - This is a basic example; real-world applications may require additional security measures, compliance with privacy laws, and more advanced image processing techniques.
