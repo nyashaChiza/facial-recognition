@@ -1,54 +1,50 @@
-
 import os
 import base64
 
 from django.conf import settings
-from .models import Citizen
 from django.db import models
 from django.urls import reverse
-from .forms import BlacklistForm
 from reportlab.pdfgen import canvas
 from django.contrib import messages
-from django.http import  HttpResponse
+from django.http import HttpResponse
 from core.helpers import find_face
-from django.shortcuts import render, redirect
 from django.core.files.base import ContentFile
 from .models import Citizen, Incident, CitizenImage, Config
-from .forms import CitizenSearchForm, CitizenForm, IncidentForm, ConfigForm
+from .forms import BlacklistForm, CitizenSearchForm, CitizenForm, IncidentForm, ConfigForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
-from core.models import Config
-
-config = Config.objects.first()
-
 
 
 class IndexView(TemplateView):
     template_name = 'home.html'
-    
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['search_form'] = CitizenSearchForm()
         context['config'] = Config.objects.first()
         return context
 
+
 class CitizenListView(ListView):
     model = Citizen
     context_object_name = 'citizens'
     template_name = 'citizens/index.html'
-    
+
+
 class BlacklistedCitizenListView(ListView):
     model = Citizen
     context_object_name = 'citizens'
     template_name = 'citizens/blacklist.html'
-    
+
     def get_queryset(self):
         return super().get_queryset().filter(is_blacklisted=True).all()
+
 
 class CitizenDetailView(DetailView):
     model = Citizen
     context_object_name = 'citizen'
     template_name = 'citizens/detail.html'
+
 
 class IncidentDetailView(DetailView):
     model = Incident
@@ -56,18 +52,15 @@ class IncidentDetailView(DetailView):
     template_name = 'incidents/detail.html'
 
 
-
 def reinstate_citizen(request, citizen_id):
     # Retrieve the citizen object
     citizen = Citizen.objects.get(pk=citizen_id)
 
     if request.method == 'GET':
-
-            citizen.is_blacklisted=False
-            citizen.blacklist_reason = ""
-            citizen.save()
-    return redirect('citizen-list')  
-       
+        citizen.is_blacklisted = False
+        citizen.blacklist_reason = ""
+        citizen.save()
+    return redirect('citizen-list')
 
 
 def blacklist_citizen(request, citizen_id):
@@ -79,7 +72,7 @@ def blacklist_citizen(request, citizen_id):
         form = BlacklistForm(request.POST, instance=citizen)
         if form.is_valid():
             # Save the form
-            citizen.is_blacklisted=True
+            citizen.is_blacklisted = True
             citizen.blacklist_reason = form.cleaned_data['blacklist_reason']
             citizen.save()
             return redirect('citizen-detail', pk=citizen_id)  # Redirect to the citizen detail page
@@ -94,21 +87,25 @@ class IncidentCreateView(CreateView):
     model = Incident
     form_class = IncidentForm
     template_name = 'incidents/create.html'
-    
+
+
 class CitizenCreateView(CreateView):
     model = Citizen
     form_class = CitizenForm
     template_name = 'citizens/create.html'
-    
+
+
 class IncidentListView(ListView):
     model = Incident
     context_object_name = 'incidents'
     template_name = 'incidents/index.html'
 
+
 class ImagesListView(ListView):
     model = CitizenImage
     context_object_name = 'images'
     template_name = 'images/index.html'
+
 
 def search_citizens(request):
     search_query = request.GET.get('search_query', '')
@@ -121,6 +118,7 @@ def search_citizens(request):
         )
     return render(request, 'citizens/search_results.html', {'citizens': citizens})
 
+
 def generate_incident_report(request, citizen_id):
     citizen = get_object_or_404(Citizen, pk=citizen_id)
     incidents = citizen.incidents.all()
@@ -130,7 +128,7 @@ def generate_incident_report(request, citizen_id):
 
     p = canvas.Canvas(response)
     p.drawString(100, 800, f"Incident Report for {citizen.first_name} {citizen.last_name} ")
-    p.drawString(100, 780, f"Is Blacklist : {'Yes' if citizen.is_blacklisted else "No"} ")
+    p.drawString(100, 780, f"Is Blacklist : {'Yes' if citizen.is_blacklisted else 'No'} ")
     p.drawString(100, 760, f"ID Type: {citizen.id_type} ")
     p.drawString(100, 740, f"ID Number: {citizen.id_number} ")
     p.drawString(100, 720, f"Total Points: {citizen.get_total_points()} ")
@@ -169,24 +167,28 @@ def capture_driver(request):
             if image_data:
                 format, imgstr = image_data.split(';base64,')
                 ext = format.split('/')[-1]
-                
+
                 # Save the image temporarily
                 temp_image_path = 'temp_image.' + ext
                 with open(temp_image_path, 'wb') as f:
                     f.write(base64.b64decode(imgstr))
-                
+
                 # Perform face detection on the image
                 detection = find_face(temp_image_path)
                 settings.LOGGER.info(detection)
-                
+
                 if detection.get('status') if detection else False:
-                    messages.warning(request, f'A face is detected in the captured image. Please make sure it belongs to the driver {detection.get("driver")}.')
-                
+                    messages.warning(
+                        request,
+                        'A face is detected in the captured image. '
+                        f'Please make sure it belongs to the driver {detection.get("driver")}.'
+                    )
+
                 else:
                     citizen.picture.save(f'citizen_{citizen}.{ext}', ContentFile(base64.b64decode(imgstr)), save=False)
                     citizen.save()
                     messages.success(request, 'Driver added successfully')
-                
+
                 # Remove the temporary image file
                 os.remove(temp_image_path)
             else:
@@ -195,8 +197,9 @@ def capture_driver(request):
             messages.warning(request, 'Invalid Driver Information')
     else:
         messages.warning(request, 'Method Not Allowed')
-        
+
     return redirect(reverse('citizen-list'))
+
 
 def capture_incident(request):
     if request.method == 'POST':
@@ -204,11 +207,11 @@ def capture_incident(request):
         ext = format.split('/')[-1]
         image_content = ContentFile(base64.b64decode(imgstr))
         temp_image_name = 'temp_image.' + ext
-        
+
         with open(temp_image_name, 'wb') as f:
             f.write(image_content.read())
         driver = find_face(temp_image_name)
-        
+
         if driver:
             driver = driver.get('driver')
             incident_form = IncidentForm(request.POST)
@@ -216,16 +219,21 @@ def capture_incident(request):
                 incident = incident_form.save(commit=False)
                 incident.citizen = driver
                 incident.save()
-                if incident.citizen.get_total_points() > config.maximum_points_threshold :
+                config = Config.objects.first()
+                max_points = config.maximum_points_threshold if config else 1
+                if incident.citizen.get_total_points() > max_points:
                     incident.citizen.is_blacklisted = True
                     incident.citizen.blacklist_reason = 'Points Exceeded Limit'
                     incident.citizen.save()
                 os.remove(temp_image_name)
                 if driver.is_blacklisted:
-                    messages.warning(request, f'Incident for {driver} saved successfully (Please Note This is a blacklisted Driver)')
+                    messages.warning(
+                        request,
+                        f'Incident for {driver} saved successfully (Please Note This is a blacklisted Driver)'
+                    )
                 else:
                     messages.success(request, f'Incident for {driver} saved successfully')
-                
+
             else:
                 messages.warning(request, f'Invalid Driver Information for {driver}')
         else:
@@ -234,19 +242,20 @@ def capture_incident(request):
             return redirect(request.path)
     else:
         messages.warning(request, 'Method Not Allowed')
-        
+
     return redirect(reverse('incident-list'))
 
+
 class ConfigUpdateView(UpdateView):
-        template_name = 'config/update.html'
-        model= Config
-        form_class = ConfigForm
-        
-        def get_context_data(self, **kwargs):
-            context = super().get_context_data(**kwargs)
-            context['config'] = Config.objects.first()
-            return context
-        
-        def get_success_url(self):
-            messages.success(self.request, 'System configuration updated successfully')
-            return reverse('home')
+    template_name = 'config/update.html'
+    model = Config
+    form_class = ConfigForm
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['config'] = Config.objects.first()
+        return context
+
+    def get_success_url(self):
+        messages.success(self.request, 'System configuration updated successfully')
+        return reverse('home')
