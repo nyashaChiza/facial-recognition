@@ -1,0 +1,54 @@
+name: Django CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      max-parallel: 4
+      matrix:
+        python-version: ["3.12"]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: pip
+    - name: Install system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends \
+          cmake build-essential \
+          libgl1 libglib2.0-0 libsm6 libxext6 libxrender1
+    - name: Install Python dependencies
+      # dlib has no prebuilt wheel and compiles from source here, so this
+      # step is slow (several minutes) the first time it isn't cached.
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-dev.txt
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --statistics
+    - name: Run migrations
+      run: |
+        python manage.py migrate
+      env:
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'test-secret-key' }}
+        DEBUG: 'False'
+        ALLOWED_HOSTS: 'localhost,127.0.0.1'
+    - name: Run Tests
+      run: |
+        python manage.py test
+      env:
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'test-secret-key' }}
+        DEBUG: 'False'
+        ALLOWED_HOSTS: 'localhost,127.0.0.1'
