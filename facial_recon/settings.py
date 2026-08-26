@@ -2,6 +2,8 @@
 import os
 from pathlib import Path
 import loguru
+from decouple import config, Csv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,12 +12,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-$-n#_4agqzg%+&#+xs_@5m=5+njty!-%di5537s^$atc^@ew$9'
-LOGGER=  loguru.logger
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# The default below is only for local development; set SECRET_KEY in the
+# environment for any deployment.
+SECRET_KEY = config(
+    'SECRET_KEY',
+    default='django-insecure-$-n#_4agqzg%+&#+xs_@5m=5+njty!-%di5537s^$atc^@ew$9',
+)
+LOGGER = loguru.logger
 
-ALLOWED_HOSTS = ['127.0.0.1','ngrok.io','localhost:8006','a72f-2c0f-f8f0-696a-0-dc06-9823-21f8-fb6e.ngrok-free.app']
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = config('DEBUG', default=False, cast=bool)
+
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
 
 
 # Application definition
@@ -109,4 +117,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
-CSRF_TRUSTED_ORIGINS = ["https://*.ngrok-free.app"]
+# Empty by default; set e.g. CSRF_TRUSTED_ORIGINS=https://*.ngrok-free.app
+# in the environment when exposing the dev server via a tunnel.
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
