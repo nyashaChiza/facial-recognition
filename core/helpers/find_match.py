@@ -20,7 +20,13 @@ _recognizer = None
 def _get_detector():
     global _detector
     if _detector is None:
-        _detector = cv2.FaceDetectorYN_create(YUNET_MODEL_PATH, "", (320, 320))
+        # YuNet's own default score_threshold (0.9) is tuned for clean,
+        # well-lit studio-style photos; real webcam captures (uneven
+        # lighting, motion blur, off-angle faces) routinely score below
+        # that, so detection silently fails ("Driver Face not detected")
+        # even when a face is clearly present. 0.6 is the commonly
+        # recommended threshold for in-the-wild capture conditions.
+        _detector = cv2.FaceDetectorYN_create(YUNET_MODEL_PATH, "", (320, 320), score_threshold=0.6)
     return _detector
 
 
@@ -66,6 +72,17 @@ def _compare_features(feature1, feature2, tolerance):
 
 
 def find_face(image_path, tolerance=None):
+    """
+    Detect the face in image_path and find the closest-matching registered
+    citizen.
+
+    Returns None only if no face could be detected in image_path itself.
+    Otherwise returns {'driver': Citizen, 'score': float, 'status': bool} for
+    the best-scoring citizen - callers MUST check 'status' (True only if the
+    score cleared `tolerance`) rather than treating any non-None return as a
+    confident match: with citizens registered, this always returns the
+    closest one, even if that citizen is a poor/no match.
+    """
     if tolerance is None:
         tolerance = get_match_tolerance()
 
