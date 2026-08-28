@@ -3,10 +3,10 @@ from django.urls import reverse
 from django.contrib import messages
 from .models import Citizen, CitizenImage, Config
 from .forms import BlacklistForm, CitizenSearchForm, CitizenForm, ConfigForm
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
-from core.services import InvalidImageDataError, process_driver_capture, reinstate_driver
+from core.services import InvalidImageDataError, process_driver_capture, reinstate_driver, update_driver_photo
 
 
 class IndexView(TemplateView):
@@ -70,6 +70,30 @@ class CitizenCreateView(CreateView):
     model = Citizen
     form_class = CitizenForm
     template_name = 'citizens/create.html'
+
+
+def edit_citizen(request, pk):
+    citizen = get_object_or_404(Citizen, pk=pk)
+
+    if request.method == 'POST':
+        form = CitizenForm(request.POST, instance=citizen)
+        if form.is_valid():
+            citizen = form.save()
+            image_data = request.POST.get('image_data')
+            if image_data:
+                try:
+                    update_driver_photo(citizen, image_data)
+                except InvalidImageDataError as e:
+                    messages.warning(request, f'Driver details saved, but photo was not updated: {e}')
+                    return redirect('citizen-detail', pk=citizen.pk)
+            messages.success(request, f'{citizen} updated successfully')
+            return redirect('citizen-detail', pk=citizen.pk)
+        else:
+            messages.warning(request, 'Invalid Driver Information')
+    else:
+        form = CitizenForm(instance=citizen)
+
+    return render(request, 'citizens/edit.html', {'form': form, 'citizen': citizen})
 
 
 class ImagesListView(ListView):

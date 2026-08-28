@@ -46,6 +46,9 @@
             </ul>
 
             <div class="d-flex flex-wrap gap-2">
+                <a href="{% url 'citizen-update' citizen.pk %}" class="btn btn-outline-primary">
+                    <i class="fas fa-user-edit me-1"></i>Edit
+                </a>
                 <a href="{% url 'generate_incident_report' citizen.pk %}" class="btn btn-dark">
                     <i class="fas fa-file-pdf me-1"></i>Generate Report
                 </a>

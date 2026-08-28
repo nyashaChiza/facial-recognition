@@ -1,0 +1,76 @@
+{% extends 'layouts/base.html'%}
+
+{% block body %}
+<section class="container bg-white mx-auto m-3 p-4 rounded-3 shadow-sm">
+    <div class="page-header">
+        <div class="page-header-title">
+            <span class="page-header-icon"><i class="fas fa-user-edit"></i></span>
+            <h1>Edit Driver</h1>
+        </div>
+        <div class="page-header-actions">
+            <a href="{% url 'citizen-detail' citizen.pk %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'citizen-update' citizen.pk %}" id="driver-form" enctype="multipart/form-data" class="form-card">
+        {% csrf_token %}
+        {% include 'layouts/form_fields.html' %}
+
+        <div class="mb-3">
+            <label class="form-label d-block">Current Photo</label>
+            {% if citizen.picture %}
+                <img src="{{ citizen.picture.url }}" alt="{{ citizen }}" class="avatar-photo-sm" style="width:5rem;height:5rem;">
+            {% else %}
+                <span class="text-muted">No photo on file.</span>
+            {% endif %}
+        </div>
+
+        <div class="capture-box mb-3">
+            <video id="video" autoplay playsinline></video>
+            <p class="capture-hint"><i class="fas fa-camera me-1"></i>Only capture a new photo if you want to replace the current one.</p>
+            <button class="btn btn-outline-success" type="button" id="capture-btn">
+                <i class="fas fa-camera me-1"></i>Capture New Photo
+            </button>
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save me-1"></i>Save Changes
+        </button>
+
+        <script>
+            document.getElementById('capture-btn').addEventListener('click', function() {
+                const video = document.getElementById('video');
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                const context = canvas.getContext('2d');
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const imageData = canvas.toDataURL('image/jpeg');
+
+                let imageInput = document.querySelector('input[name="image_data"]');
+                if (!imageInput) {
+                    imageInput = document.createElement('input');
+                    imageInput.type = 'hidden';
+                    imageInput.name = 'image_data';
+                    document.getElementById('driver-form').appendChild(imageInput);
+                }
+                imageInput.value = imageData;
+
+                document.getElementById('driver-form').submit();
+            });
+
+            // Get access to the webcam
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    const video = document.getElementById('video');
+                    video.srcObject = stream;
+                })
+                .catch(err => {
+                    console.error('Error accessing webcam:', err);
+                });
+        </script>
+    </form>
+</section>
+{% endblock %}

@@ -7,6 +7,7 @@ from .views import (
     CitizenCreateView,
     search_citizens,
     capture_driver,
+    edit_citizen,
     blacklist_citizen,
     reinstate_citizen,
     BlacklistedCitizenListView,
@@ -31,6 +32,7 @@ urlpatterns = [
     path('incident/create/', IncidentCreateView.as_view(), name='incident-create'),
     path('capture/incident/', capture_incident, name='incident-capture'),
     path('citizen/detail/<int:pk>', CitizenDetailView.as_view(), name='citizen-detail'),
+    path('citizen/edit/<int:pk>', edit_citizen, name='citizen-update'),
 
     path('config/set/<int:pk>', ConfigUpdateView.as_view(), name='config-update'),
     path('incident/detail/<int:pk>', IncidentDetailView.as_view(), name='incident-detail'),

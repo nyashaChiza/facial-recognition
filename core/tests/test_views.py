@@ -167,6 +167,52 @@ class CaptureDriverViewTests(TestCase):
         self.assertFalse(Citizen.objects.filter(id_number='X1').exists())
 
 
+class EditCitizenViewTests(TestCase):
+    def setUp(self):
+        self.citizen = Citizen.objects.create(
+            first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1",
+        )
+
+    def test_get_renders_form_prefilled_with_existing_values(self):
+        response = self.client.get(reverse('citizen-update', args=[self.citizen.pk]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['form'].instance, self.citizen)
+
+    def test_post_updates_fields_without_touching_photo(self):
+        response = self.client.post(
+            reverse('citizen-update', args=[self.citizen.pk]),
+            {'first_name': 'Janet', 'last_name': 'Doe', 'id_type': 'Passport', 'id_number': 'X1'},
+        )
+
+        self.assertRedirects(response, reverse('citizen-detail', kwargs={'pk': self.citizen.pk}))
+        self.citizen.refresh_from_db()
+        self.assertEqual(self.citizen.first_name, 'Janet')
+
+    def test_post_with_image_data_updates_photo(self):
+        response = self.client.post(
+            reverse('citizen-update', args=[self.citizen.pk]),
+            {
+                'first_name': 'Jane', 'last_name': 'Doe', 'id_type': 'Passport', 'id_number': 'X1',
+                'image_data': 'data:image/png;base64,ZmFrZQ==',
+            },
+        )
+
+        self.assertRedirects(response, reverse('citizen-detail', kwargs={'pk': self.citizen.pk}))
+        self.citizen.refresh_from_db()
+        self.assertTrue(self.citizen.picture.name)
+
+    def test_invalid_form_does_not_save(self):
+        response = self.client.post(
+            reverse('citizen-update', args=[self.citizen.pk]),
+            {'first_name': '', 'last_name': 'Doe', 'id_type': 'Passport', 'id_number': 'X1'},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.citizen.refresh_from_db()
+        self.assertEqual(self.citizen.first_name, 'Jane')
+
+
 class GenerateIncidentReportTests(TestCase):
     def test_returns_pdf_for_existing_citizen(self):
         citizen = Citizen.objects.create(first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1")
