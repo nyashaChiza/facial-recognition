@@ -9,6 +9,7 @@ from core.services import (
     decode_captured_image,
     process_driver_capture,
     reinstate_driver,
+    update_driver_photo,
     MAX_IMAGE_BYTES,
 )
 
@@ -71,6 +72,23 @@ class ProcessDriverCaptureTests(TestCase):
     def test_invalid_image_data_raises_before_calling_find_face(self):
         with self.assertRaises(InvalidImageDataError):
             process_driver_capture(self.citizen, None)
+
+
+class UpdateDriverPhotoTests(TestCase):
+    def test_replaces_the_citizens_photo(self):
+        citizen = Citizen.objects.create(first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1")
+
+        result = update_driver_photo(citizen, VALID_IMAGE_DATA)
+
+        self.assertEqual(result.id, citizen.id)
+        citizen.refresh_from_db()
+        self.assertTrue(citizen.picture.name)
+
+    def test_invalid_image_data_raises(self):
+        citizen = Citizen.objects.create(first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1")
+
+        with self.assertRaises(InvalidImageDataError):
+            update_driver_photo(citizen, None)
 
 
 class ReinstateDriverTests(TestCase):

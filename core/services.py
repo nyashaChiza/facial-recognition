@@ -80,3 +80,19 @@ def reinstate_driver(citizen_id):
     citizen.blacklist_reason = ""
     citizen.save()
     return citizen
+
+
+def update_driver_photo(citizen, image_data):
+    """
+    Replace `citizen`'s registered photo with a freshly captured one.
+
+    Unlike process_driver_capture, this doesn't check for a duplicate face
+    match against other drivers - it's refreshing a known driver's own
+    photo, not registering a new identity.
+
+    Raises InvalidImageDataError if image_data is missing/malformed/too large.
+    """
+    ext, decoded = decode_captured_image(image_data)
+    citizen.picture.save(f'citizen_{citizen}.{ext}', ContentFile(decoded), save=False)
+    citizen.save()
+    return citizen
