@@ -40,36 +40,43 @@ def capture_incident(request):
 
         temp_image_name = write_temp_image(decoded, ext)
         try:
-            driver = find_face(temp_image_name)
+            match = find_face(temp_image_name)
         finally:
             os.remove(temp_image_name)
 
-        if driver:
-            driver = driver.get('driver')
-            incident_form = IncidentForm(request.POST)
-            if incident_form.is_valid():
-                incident = incident_form.save(commit=False)
-                incident.citizen = driver
-                incident.save()
-                config = Config.objects.first()
-                max_points = config.maximum_points_threshold if config else 1
-                if incident.citizen.get_total_points() > max_points:
-                    incident.citizen.is_blacklisted = True
-                    incident.citizen.blacklist_reason = 'Points Exceeded Limit'
-                    incident.citizen.save()
-                if driver.is_blacklisted:
-                    messages.warning(
-                        request,
-                        f'Incident for {driver} saved successfully (Please Note This is a blacklisted Driver)'
-                    )
-                else:
-                    messages.success(request, f'Incident for {driver} saved successfully')
-
-            else:
-                messages.warning(request, f'Invalid Driver Information for {driver}')
-        else:
-            messages.warning(request, 'Driver Face not detected in the captured image, please try again')
+        if match is None:
+            messages.warning(request, 'No face detected in the captured image, please try again')
             return redirect(request.path)
+
+        if not match['status']:
+            messages.warning(
+                request,
+                'This face does not match any registered driver. Please register the driver first.'
+            )
+            return redirect(request.path)
+
+        driver = match['driver']
+        incident_form = IncidentForm(request.POST)
+        if incident_form.is_valid():
+            incident = incident_form.save(commit=False)
+            incident.citizen = driver
+            incident.save()
+            config = Config.objects.first()
+            max_points = config.maximum_points_threshold if config else 1
+            if incident.citizen.get_total_points() > max_points:
+                incident.citizen.is_blacklisted = True
+                incident.citizen.blacklist_reason = 'Points Exceeded Limit'
+                incident.citizen.save()
+            if driver.is_blacklisted:
+                messages.warning(
+                    request,
+                    f'Incident for {driver} saved successfully (Please Note This is a blacklisted Driver)'
+                )
+            else:
+                messages.success(request, f'Incident for {driver} saved successfully')
+
+        else:
+            messages.warning(request, f'Invalid Driver Information for {driver}')
     else:
         messages.warning(request, 'Method Not Allowed')
 
