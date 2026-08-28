@@ -1,28 +1,28 @@
 {% extends 'layouts/base.html' %}
 
 {% block body %}
-<section class="container bg-white mx-auto m-3 p-3 rounded-2">
-<div class="container m-3 p-3 rounded-2">
-  <div class="container " >
-<div class="row align-items-center bg-light">
-          
-  <div class="col-md-12 p-3 m-3">
-    <span class="h1">System Configurations</span>
-      <div class="mb-3 d-flex justify-content-end">
-          <a href="{% url 'home' %}" class="btn btn-md btn-primary">Back</a>
-      </div>
-  </div>
-  
-  
-</div>
-    
-    <form method="post" class='mx-3' action="{% url 'config-update' config.pk %}" id="incident-form" enctype="multipart/form-data" >
-        {% csrf_token %}
-        
-        {{ form.as_p }}
+<section class="container bg-white mx-auto m-3 p-4 rounded-3 shadow-sm">
+    <div class="page-header">
+        <div class="page-header-title">
+            <span class="page-header-icon"><i class="fas fa-cog"></i></span>
+            <h1>System Settings</h1>
+        </div>
+        <div class="page-header-actions">
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
+        </div>
+    </div>
 
-        <button class="form-control m-2 bg-success" type="submit" >Save</button>
+    <p class="text-muted">Controls how strictly captured photos must match a registered driver, and the incident-points threshold before a driver is automatically blacklisted.</p>
+
+    <form method="post" action="{% url 'config-update' config.pk %}" id="config-form" class="form-card">
+        {% csrf_token %}
+        {% include 'layouts/form_fields.html' %}
+
+        <button class="btn btn-primary" type="submit">
+            <i class="fas fa-save me-1"></i>Save
+        </button>
     </form>
-  </div>
 </section>
 {% endblock %}
