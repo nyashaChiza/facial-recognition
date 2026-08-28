@@ -1,0 +1,42 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+  <div class="container">
+    <a class="navbar-brand fw-bold d-flex align-items-center" href="{% url 'home' %}">
+      <i class="fas fa-id-card-alt me-2"></i>Driver Registry
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+      aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+            <i class="fas fa-home me-1"></i>Home
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'citizen-list' %}active{% endif %}" href="{% url 'citizen-list' %}">
+            <i class="fas fa-users me-1"></i>Drivers
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'incident-list' %}active{% endif %}" href="{% url 'incident-list' %}">
+            <i class="fas fa-exclamation-circle me-1"></i>Incidents
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'blacklist' %}active{% endif %}" href="{% url 'blacklist' %}">
+            <i class="fas fa-ban me-1"></i>Blacklist
+          </a>
+        </li>
+        {% if nav_config %}
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'config-update' %}active{% endif %}" href="{% url 'config-update' nav_config.pk %}">
+            <i class="fas fa-cog me-1"></i>Settings
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
