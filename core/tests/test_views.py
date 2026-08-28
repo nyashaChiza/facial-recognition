@@ -92,7 +92,7 @@ class ReinstateCitizenViewTests(TestCase):
 
 
 class CaptureIncidentViewTests(TestCase):
-    @mock.patch('core.views.find_face')
+    @mock.patch('core.views_incidents.find_face')
     def test_no_face_detected_redirects_back_with_warning(self, mock_find_face):
         mock_find_face.return_value = None
 

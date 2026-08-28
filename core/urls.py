@@ -2,20 +2,22 @@ from django.urls import path
 from .views import (
     IndexView,
     CitizenListView,
-    IncidentListView,
     ImagesListView,
     CitizenDetailView,
-    IncidentDetailView,
-    IncidentCreateView,
     CitizenCreateView,
     search_citizens,
-    generate_incident_report,
-    capture_incident,
     capture_driver,
     blacklist_citizen,
     reinstate_citizen,
     BlacklistedCitizenListView,
     ConfigUpdateView
+)
+from .views_reports import generate_incident_report
+from .views_incidents import (
+    IncidentListView,
+    IncidentDetailView,
+    IncidentCreateView,
+    capture_incident,
 )
 
 urlpatterns = [
