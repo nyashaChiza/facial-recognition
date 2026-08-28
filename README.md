@@ -2,23 +2,22 @@
 
 A Django app for managing a driver/citizen registry with face-recognition-based
 identity verification: capture a driver's photo on registration, match a
-photo captured at an incident against registered drivers using the
-`face_recognition` library, log incidents, and auto-blacklist drivers whose
-incident points exceed a configurable threshold.
+photo captured at an incident against registered drivers using OpenCV's
+`FaceDetectorYN`/`FaceRecognizerSF` (YuNet + SFace), log incidents, and
+auto-blacklist drivers whose incident points exceed a configurable threshold.
 
 ## Features
 - **Driver registry:** register citizens/drivers with a photo, ID type and ID number.
-- **Face matching:** compares a captured photo against registered drivers via `face_recognition`.
+- **Face matching:** compares a captured photo against registered drivers using OpenCV's built-in face detection/recognition models (see `core/ml_models/`).
 - **Incident tracking:** log incidents against a matched driver, with a points system.
 - **Auto-blacklisting:** a driver is automatically blacklisted once their total incident points exceed a configurable threshold (see System Settings in the app).
 - **PDF reports:** generate a per-driver incident report as a PDF.
 
 ## Prerequisites
-- Python 3.12+
-- `cmake` and a C/C++ compiler (needed to build `dlib`, which `face_recognition`
-  depends on and which has no prebuilt wheel on most platforms). On Debian/Ubuntu:
-  `sudo apt-get install cmake build-essential`. On Windows, install Visual
-  Studio Build Tools (C++ workload) and CMake.
+- Python 3.12 or newer (this project has no dependency that needs compiling
+  from source - every package in `requirements.txt` ships a prebuilt wheel,
+  including on brand-new Python releases, so no C/C++ compiler or CMake is
+  needed).
 
 ## Setup
 
@@ -27,7 +26,7 @@ incident points exceed a configurable threshold.
    git clone https://github.com/nyashaChiza/facial-recognition.git
    cd facial-recognition
    ```
-2. Install dependencies (this compiles `dlib` and can take several minutes):
+2. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
