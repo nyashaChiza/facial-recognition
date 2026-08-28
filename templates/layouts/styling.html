@@ -124,4 +124,169 @@ body{margin-top:20px;
         border-radius: 0.25rem;
     }
 
+    /* ---- Page header: icon + title + actions, used on every page ---- */
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding-bottom: 1rem;
+        margin-bottom: 1.5rem;
+        border-bottom: 1px solid rgba(30,46,80,.09);
+    }
+    .page-header-title {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+    }
+    .page-header-title h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1f2c73;
+    }
+    .page-header-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: 0.6rem;
+        background-color: #e9f3ff;
+        color: #0d6efd;
+        flex-shrink: 0;
+    }
+    .page-header-actions {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+    }
+
+    /* ---- Portrait / avatar photo ---- */
+    .avatar-photo {
+        width: 100%;
+        max-width: 260px;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+        border-radius: 0.75rem;
+        border: 1px solid rgba(30,46,80,.09);
+        background-color: #f6f9fc;
+    }
+    .avatar-photo-sm {
+        width: 2.5rem;
+        height: 2.5rem;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 1px solid rgba(30,46,80,.09);
+        background-color: #f6f9fc;
+    }
+
+    /* ---- Label/value info rows, replaces the old raw <ul><li> lists ---- */
+    .info-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+    .info-list .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 1rem;
+        padding: .65rem 0;
+        border-bottom: 1px solid rgba(30,46,80,.07);
+    }
+    .info-list .info-row:last-child {
+        border-bottom: none;
+    }
+    .info-list .info-label {
+        color: #6c7a91;
+        font-weight: 500;
+    }
+    .info-list .info-value {
+        font-weight: 600;
+        color: #1f2c73;
+        text-align: right;
+    }
+
+    /* ---- Incident entries ---- */
+    .incident-item {
+        border: 1px solid rgba(30,46,80,.09);
+        border-radius: 0.6rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: .75rem;
+        transition: box-shadow .2s ease;
+    }
+    .incident-item:hover {
+        box-shadow: 0 .25rem .5rem rgba(35,38,45,.08);
+    }
+    .incident-item .incident-title {
+        font-weight: 600;
+        color: #1f2c73;
+        margin-bottom: .5rem;
+    }
+    .incident-item .incident-meta {
+        color: #6c7a91;
+        font-size: .875rem;
+    }
+    .incident-item dl {
+        margin: 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: .5rem 1.5rem;
+    }
+    .incident-item dt {
+        font-size: .75rem;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        color: #6c7a91;
+        font-weight: 600;
+    }
+    .incident-item dd {
+        margin: 0;
+        color: #1f2c73;
+    }
+
+    /* ---- Empty state ---- */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6c7a91;
+    }
+    .empty-state i {
+        font-size: 2.25rem;
+        margin-bottom: .75rem;
+        opacity: .4;
+        display: block;
+    }
+
+    /* ---- Webcam capture box ---- */
+    .capture-box {
+        border: 2px dashed rgba(13,110,253,.25);
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        text-align: center;
+        background-color: #f8fafc;
+    }
+    .capture-box video {
+        width: 100%;
+        max-width: 480px;
+        border-radius: 0.5rem;
+        background-color: #000;
+    }
+    .capture-box .capture-hint {
+        color: #6c7a91;
+        font-size: .875rem;
+        margin-top: .75rem;
+        margin-bottom: 0;
+    }
+
+    /* ---- Form layout (used with layouts/form_fields.html) ---- */
+    .form-card {
+        max-width: 640px;
+    }
+    .form-card .form-label {
+        font-weight: 500;
+        color: #1f2c73;
+    }
 </style>
