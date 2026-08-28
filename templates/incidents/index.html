@@ -1,59 +1,55 @@
 {% extends 'layouts/base.html'%}
 
 {% block body %}
-<section class="container bg-white mx-auto m-3 p-3 rounded-2">
-<div class="container">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <div class="mb-3">
-                <h5 class="card-title">Driver Incidents <span class="text-muted fw-normal ms-2">({{ incidents.count }})</span></h5>
-            </div>
+<section class="container bg-white mx-auto m-3 p-4 rounded-3 shadow-sm">
+    <div class="page-header">
+        <div class="page-header-title">
+            <span class="page-header-icon"><i class="fas fa-exclamation-circle"></i></span>
+            <h1>Driver Incidents <span class="text-muted fw-normal fs-6">({{ incidents.count }})</span></h1>
         </div>
-        <div class="col-md-6">
-            <div class="mb-3 d-flex justify-content-end">
-                <a href="{% url 'home' %}" class="btn btn-md btn-primary">Back</a>
-            </div>
-        </div>
-        
-        
-    </div>
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="">
-                <div class="table-responsive">
-                    <table class="table project-list-table table-nowrap align-middle table-borderless">
-                        <thead>
-                            <tr>
-                                
-                                <th scope="col">Name</th>
-                                <th scope="col">Incident</th>
-                                <th scope="col">Location</th>
-                                <th scope="col">Points</th>
-                                <th scope="col">Date</th>
-                                <th scope="col">Action</th>
-                               
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for incident in incidents %}
-                            <tr>
-                           
-                                <td>{{ incident.citizen }}</td>
-                                <td> {{ incident.title }}</td>
-                                <td> {{ incident.location }}</td>
-                                <td> {{ incident.points }}</td>
-                                <td>{{ incident.incident_date }}</td>
-                                <td><a class="btn btn-sm bg-light" href="{% url 'incident-detail' incident.pk %}">Details</a></td>
-                                
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="page-header-actions">
+            <a href="{% url 'incident-create' %}" class="btn btn-primary">
+                <i class="fas fa-plus me-1"></i>Add New
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
         </div>
     </div>
-    
-</div>
+
+    {% if incidents %}
+    <div class="table-responsive">
+        <table class="table project-list-table table-nowrap align-middle table-borderless">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">Incident</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Points</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for incident in incidents %}
+                <tr>
+                    <td>{{ incident.citizen }}</td>
+                    <td>{{ incident.title }}</td>
+                    <td>{{ incident.location }}</td>
+                    <td><span class="badge bg-secondary">{{ incident.points }}</span></td>
+                    <td>{{ incident.incident_date }}</td>
+                    <td><a class="btn btn-sm btn-outline-primary" href="{% url 'incident-detail' incident.pk %}">Details</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-exclamation-circle"></i>
+        <p class="mb-3">No incidents logged yet.</p>
+        <a href="{% url 'incident-create' %}" class="btn btn-primary btn-sm">Log the first incident</a>
+    </div>
+    {% endif %}
 </section>
 {% endblock %}

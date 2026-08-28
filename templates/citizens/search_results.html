@@ -1,60 +1,52 @@
 {% extends 'layouts/base.html'%}
 
 {% block body %}
-<section class="container bg-white mx-auto m-3 p-3 rounded-2">
-<div class="container">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <div class="mb-3">
-                <h5 class="card-title">Search Results <span class="text-muted fw-normal ms-2">({{citizens.count}})</span></h5>
-            </div>
+<section class="container bg-white mx-auto m-3 p-4 rounded-3 shadow-sm">
+    <div class="page-header">
+        <div class="page-header-title">
+            <span class="page-header-icon"><i class="fas fa-search"></i></span>
+            <h1>Search Results <span class="text-muted fw-normal fs-6">({{ citizens.count }})</span></h1>
         </div>
-        <div class="col-md-6">
-            <div class="mb-3 d-flex justify-content-end">
-                <a href="{% url 'citizen-create' %}" class="btn btn-md btn-primary">Add New</a>
-            </div>
-            <div class="mb-3 d-flex justify-content-end">
-                <a href="{% url 'home' %}" class="btn btn-md btn-primary">Back</a>
-            </div>
-        </div>
-        
-        
-    </div>
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="">
-                <div class="table-responsive">
-                    <table class="table project-list-table table-nowrap align-middle table-borderless">
-                        <thead>
-                            <tr>
-                                
-                                <th scope="col">Name</th>
-                                <th scope="col">ID Type</th>
-                                <th scope="col">ID Number</th>
-                                <th scope="col">Incidents</th>
-                                <th scope="col">Action</th>
-                               
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for citizen in citizens %}
-                            <tr>
-                           
-                                <td>{{ citizen }}</td>
-                                <td> {{ citizen.id_type }}</td>
-                                <td>{{ citizen.id_number}}</td>
-                                <td>{{ citizen.incidents.count }}</td>
-                                <td><a href="{% url 'citizen-detail' citizen.pk %}">Details</a></td>
-                                
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        <div class="page-header-actions">
+            <a href="{% url 'citizen-create' %}" class="btn btn-primary">
+                <i class="fas fa-user-plus me-1"></i>Add New
+            </a>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
         </div>
     </div>
-    
-</div>
+
+    {% if citizens %}
+    <div class="table-responsive">
+        <table class="table project-list-table table-nowrap align-middle table-borderless">
+            <thead>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">ID Type</th>
+                    <th scope="col">ID Number</th>
+                    <th scope="col">Incidents</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for citizen in citizens %}
+                <tr>
+                    <td>{{ citizen }}</td>
+                    <td>{{ citizen.id_type }}</td>
+                    <td>{{ citizen.id_number }}</td>
+                    <td>{{ citizen.incidents.count }}</td>
+                    <td><a class="btn btn-sm btn-outline-primary" href="{% url 'citizen-detail' citizen.pk %}">Details</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-search"></i>
+        <p class="mb-0">No drivers matched your search.</p>
+    </div>
+    {% endif %}
 </section>
 {% endblock %}
