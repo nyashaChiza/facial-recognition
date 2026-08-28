@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from core.models import Citizen, Incident, CitizenImage
+from core.models import Citizen, Incident, CitizenImage, Config
 
 
 class CitizenModelTests(TestCase):
@@ -50,3 +50,17 @@ class CitizenImageModelTests(TestCase):
         image = CitizenImage.objects.create(citizen=citizen, image="citizen/images/test.jpg")
 
         self.assertEqual(str(image), "Amy Lee")
+
+
+class ConfigDefaultRowTests(TestCase):
+    def test_migration_seeds_exactly_one_config_row_with_model_defaults(self):
+        # core/migrations/0006_seed_default_config.py creates this row so the
+        # app has a usable Config immediately after a fresh `migrate`, since
+        # the config-update form has no way to create the first one (it
+        # requires an existing pk).
+        self.assertEqual(Config.objects.count(), 1)
+
+        config = Config.objects.first()
+        self.assertEqual(config.minimum_detection_threshold, 1)
+        self.assertEqual(config.maximum_detection_threshold, 99)
+        self.assertEqual(config.maximum_points_threshold, 1)
