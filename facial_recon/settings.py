@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import loguru
+from django.contrib.messages import constants as message_constants
 from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -61,6 +62,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'core.context_processors.nav_config',
             ],
         },
     },
@@ -117,6 +119,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+# Bootstrap has no `alert-error` class (it's `alert-danger`); without this
+# mapping, messages.error(...) would render with no color/icon styling at
+# all since the template maps message.tags straight onto `alert-{tags}`.
+MESSAGE_TAGS = {
+    message_constants.ERROR: 'danger',
+}
 # Empty by default; set e.g. CSRF_TRUSTED_ORIGINS=https://*.ngrok-free.app
 # in the environment when exposing the dev server via a tunnel.
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
