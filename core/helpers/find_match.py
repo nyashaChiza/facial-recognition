@@ -1,35 +1,96 @@
-import face_recognition
-from core.models import Citizen
-from facial_recon import settings
-from core.models import Config
+import os
 
-# Config.maximum_detection_threshold's model default, used when no Config
-# row exists yet (e.g. right after a fresh clone, before an admin has
-# visited the config screen).
-DEFAULT_MATCH_TOLERANCE = 99
+import cv2
+from facial_recon import settings
+from core.models import Citizen, Config
+
+_MODELS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'ml_models')
+YUNET_MODEL_PATH = os.path.join(_MODELS_DIR, 'face_detection_yunet_2023mar.onnx')
+SFACE_MODEL_PATH = os.path.join(_MODELS_DIR, 'face_recognition_sface_2021dec.onnx')
+
+# Config.maximum_detection_threshold is a 1-99 value (see core/models.py); it
+# is interpreted as a percentage and converted to a 0.0-1.0 cosine-similarity
+# tolerance below. This default is used when no Config row exists yet.
+DEFAULT_MATCH_TOLERANCE = 0.40
+
+_detector = None
+_recognizer = None
+
+
+def _get_detector():
+    global _detector
+    if _detector is None:
+        _detector = cv2.FaceDetectorYN_create(YUNET_MODEL_PATH, "", (320, 320))
+    return _detector
+
+
+def _get_recognizer():
+    global _recognizer
+    if _recognizer is None:
+        _recognizer = cv2.FaceRecognizerSF_create(SFACE_MODEL_PATH, "")
+    return _recognizer
 
 
 def get_match_tolerance():
     config = Config.objects.first()
-    return config.maximum_detection_threshold if config else DEFAULT_MATCH_TOLERANCE
+    if not config:
+        return DEFAULT_MATCH_TOLERANCE
+    return config.maximum_detection_threshold / 100.0
 
 
-def find_face(image_path, tolerance=0.6):
-    captured_image = face_recognition.load_image_file(image_path)
-    captured_face_locations = face_recognition.face_locations(captured_image)
+def _detect_and_extract_feature(image_path):
+    """
+    Load an image, detect its (first/largest) face, and return its SFace
+    embedding, or None if the image can't be read or has no detectable face.
+    """
+    image = cv2.imread(image_path)
+    if image is None:
+        return None
 
-    if not captured_face_locations:
+    detector = _get_detector()
+    height, width = image.shape[:2]
+    detector.setInputSize((width, height))
+    _, faces = detector.detect(image)
+    if faces is None:
+        return None
+
+    recognizer = _get_recognizer()
+    aligned_face = recognizer.alignCrop(image, faces[0])
+    return recognizer.feature(aligned_face)
+
+
+def _compare_features(feature1, feature2, tolerance):
+    recognizer = _get_recognizer()
+    score = float(recognizer.match(feature1, feature2, cv2.FaceRecognizerSF_FR_COSINE))
+    return {"status": score >= tolerance, "confidence": score}
+
+
+def find_face(image_path, tolerance=None):
+    if tolerance is None:
+        tolerance = get_match_tolerance()
+
+    query_feature = _detect_and_extract_feature(image_path)
+    if query_feature is None:
         settings.LOGGER.error('failed to capture face')
         return None
 
     citizens = Citizen.objects.all().order_by('-pk')
     results = []
     for citizen in citizens:
-        citizen_image_path = citizen.picture.path
         settings.LOGGER.debug(f'checking: {citizen}')
-        result = match_faces(image_path, citizen_image_path, tolerance)
+
+        if not citizen.picture:
+            results.append({'driver': citizen, 'score': 0.0, 'status': False})
+            continue
+
+        citizen_feature = _detect_and_extract_feature(citizen.picture.path)
+        if citizen_feature is None:
+            results.append({'driver': citizen, 'score': 0.0, 'status': False})
+            continue
+
+        result = _compare_features(query_feature, citizen_feature, tolerance)
         settings.LOGGER.info(result)
-        results.append({'driver': citizen, 'score': result['confidence'], 'status': result["status"]})
+        results.append({'driver': citizen, 'score': result['confidence'], 'status': result['status']})
 
     # Sort the results based on the score in descending order
     results.sort(key=lambda x: x['score'], reverse=True)
@@ -47,29 +108,12 @@ def match_faces(path1: str, path2: str, tolerance: float = None):
     if tolerance is None:
         tolerance = get_match_tolerance()
 
-    image1 = face_recognition.load_image_file(path1)
-    image2 = face_recognition.load_image_file(path2)
-
-    face_encodings1 = face_recognition.face_encodings(image1)
-    face_encodings2 = face_recognition.face_encodings(image2)
-
-    if not face_encodings1:
+    feature1 = _detect_and_extract_feature(path1)
+    if feature1 is None:
         return {"status": False, "confidence": 0.0, "message": "No face found in new image "}
-    if not face_encodings2:
+
+    feature2 = _detect_and_extract_feature(path2)
+    if feature2 is None:
         return {"status": False, "confidence": 0.0, "message": "No face found in existing image "}
 
-    max_confidence = 0.0
-    for encoding1 in face_encodings1:
-        # Compare face encoding from image1 with all face encodings from image2
-        distances = face_recognition.face_distance(face_encodings2, encoding1)
-        # Find the minimum distance (maximum similarity) among all comparisons
-        min_distance = min(distances)
-        # Calculate confidence based on the minimum distance
-        confidence = 1 - min_distance
-        # Update max_confidence if the new confidence is higher
-        max_confidence = max(max_confidence, confidence)
-
-    # Determine match status based on maximum confidence
-    status = max_confidence >= tolerance
-
-    return {"status": status, "confidence": max_confidence}
+    return _compare_features(feature1, feature2, tolerance)
