@@ -47,7 +47,7 @@ class CitizenImage(models.Model):
 
 class Config(models.Model):
     minimum_detection_threshold = models.IntegerField(default=1)
-    maximum_detection_threshold = models.IntegerField(default=99)
+    maximum_detection_threshold = models.IntegerField(default=40)
     maximum_points_threshold = models.IntegerField(default=1)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

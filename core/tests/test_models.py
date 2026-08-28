@@ -57,10 +57,11 @@ class ConfigDefaultRowTests(TestCase):
         # core/migrations/0006_seed_default_config.py creates this row so the
         # app has a usable Config immediately after a fresh `migrate`, since
         # the config-update form has no way to create the first one (it
-        # requires an existing pk).
+        # requires an existing pk). 0007 then fixes maximum_detection_threshold's
+        # default (99 made no sense as a percentage-based cosine tolerance).
         self.assertEqual(Config.objects.count(), 1)
 
         config = Config.objects.first()
         self.assertEqual(config.minimum_detection_threshold, 1)
-        self.assertEqual(config.maximum_detection_threshold, 99)
+        self.assertEqual(config.maximum_detection_threshold, 40)
         self.assertEqual(config.maximum_points_threshold, 1)
