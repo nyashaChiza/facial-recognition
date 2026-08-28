@@ -1,102 +1,85 @@
 {% extends 'layouts/base.html'%}
 
 {% block body %}
-
-
-<section class="container bg-white mx-auto m-3 p-3 rounded-2">
-    <div class="container">
-        <div class="row align-items-center">
-
-            <div class="col-md-12 p-3">
-                <div class="mb-3 d-flex justify-content-end">
-                    <a href="{% url 'incident-list' %}" class="btn btn-md btn-primary">Back</a>
-                </div>
-            </div>
-
-            <div class="title">Incident Details</div>
+<section class="container bg-white mx-auto m-3 p-4 rounded-3 shadow-sm">
+    <div class="page-header">
+        <div class="page-header-title">
+            <span class="page-header-icon"><i class="fas fa-exclamation-circle"></i></span>
+            <h1>Incident Details</h1>
         </div>
-        <div class="row">
-            <div class="col-lg-12 mb-4 mb-sm-5">
-                <div class="card card-style1 border-0">
-                    <div class="card-body p-1-9 p-sm-2-3 p-md-6 p-lg-7">
-                        <div class="row align-items-center my-2">
-                            <div class="col-lg-6 mb-4 mb-lg-0">
-                                {% if incident.citizen.picture %}
-                                <img width=360 height=320 src="{{ incident.citizen.picture.url }}" alt="Citizen Image">
-                                {% else %}
-                                <!-- Add a default image or alternative content when no image is present -->
-                                <img src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="Default Image">
-                                {% endif %}
-                            </div>
-
-                            <div class="col-lg-6 px-xl-10">
-                                <div class="bg-secondary d-lg-inline-block py-1-9 px-1-9 px-sm-6 mb-1-9 rounded my-1">
-                                    <h3 class="h2 text-white mb-0 px-2 mx-2 py-2 mx-2"><a class="text-white"
-                                            href="{% url 'citizen-detail' incident.citizen.pk %}">{{ incident.citizen}}</a></h3>
-
-                                </div>
-                                <ul class="list-unstyled mb-1-9">
-                                    <li class="mb-2 mb-xl-3 display-28"><span
-                                            class="display-26 text-secondary me-2 font-weight-600">ID Type:</span> 
-                                            {{incident.citizen.id_type }}</li>
-                                    <li class="mb-2 mb-xl-3 display-28"><span
-                                            class="display-26 text-secondary me-2 font-weight-600">ID Number:</span> 
-                                            {{incident.citizen.id_number }}</li>
-                                    <li class="mb-2 mb-xl-3 display-28"><span
-                                            class="display-26 text-secondary me-2 font-weight-600">Number Of incidents
-                                            </span> {{ incident.citizen.incidents.count}} </li>
-                                    <li class="mb-2 mb-xl-3 display-28"><span class="display-26 text-secondary me-2 font-weight-600">Total Points
-                                        :</span> {{ incident.points}} </li>
-                                        
-                                            <li class="mb-2 mb-xl-3 display-28"><span
-                                            class="display-26 text-secondary me-2 font-weight-600">Is Driver
-                                            Blacklisted:</span> {{ incident.citizen.is_blacklisted }} </li>
-                                    {% if incident.citizen.is_blacklisted %}<li class="mb-2 mb-xl-3 display-28"><span
-                                            class="display-26 text-secondary me-2 font-weight-600">Blacklist
-                                            Reason:</span> {{ incident.citizen.blacklist_reason}} </li>{% endif %}
-
-                                </ul>
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-12 mb-4 mb-sm-5">
-                <div class="incident-section">
-                    <h2 class="section-title text-dark mb-3 mb-sm-4">Incident Details</h2>
-
-                    {% if incident %}
-                    <div class='card card-borded border-1 px-2 mx-2 py-2 my-2 bg-light'>
-                        <ul class="incident-list">
-                            <li class="incident-item">
-                                <p>
-                                <div class="card-title h3">{{ incident.title }}</div>
-                                </p>
-                                <p>
-                                    <div class="incident-description">Vehicle Registration Number - {{ incident.vehicle_registration_number }}</div>
-                                    </p>
-                                <p class="incident-description">
-                                    Comment - {{ incident.comment }}
-                                </p>
-                                <p class="incident-description">
-                                    Location - {{ incident.location }}
-                                </p>
-                                <span class="incident-datetime">
-                                    Date - {{ incident.created|date:"F j, Y H:i" }}
-                                </span>
-                                <!-- Add any additional incident details or formatting as needed -->
-                            </li>
-                        </ul>
-                    </div>
-                    {% else %}
-                    <p class="no-incidents-message">No incident Information to display.</p>
-                    {% endif %}
-                </div>
-
-            </div>
-
+        <div class="page-header-actions">
+            <a href="{% url 'incident-list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back
+            </a>
         </div>
     </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4 text-center text-md-start">
+            {% if incident.citizen.picture %}
+                <img src="{{ incident.citizen.picture.url }}" alt="{{ incident.citizen }}" class="avatar-photo">
+            {% else %}
+                <div class="avatar-photo d-flex align-items-center justify-content-center text-muted">
+                    <i class="fas fa-user fa-3x"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="col-md-8">
+            <div class="d-flex align-items-center flex-wrap gap-2 mb-3">
+                <h2 class="h3 mb-0">
+                    <a class="text-decoration-none" href="{% url 'citizen-detail' incident.citizen.pk %}">{{ incident.citizen }}</a>
+                </h2>
+                {% if incident.citizen.is_blacklisted %}
+                    <span class="badge bg-danger">Blacklisted</span>
+                {% else %}
+                    <span class="badge bg-success">Active</span>
+                {% endif %}
+            </div>
+
+            <ul class="info-list">
+                <li class="info-row"><span class="info-label">ID Type</span><span class="info-value">{{ incident.citizen.id_type }}</span></li>
+                <li class="info-row"><span class="info-label">ID Number</span><span class="info-value">{{ incident.citizen.id_number }}</span></li>
+                <li class="info-row"><span class="info-label">Number of Incidents</span><span class="info-value">{{ incident.citizen.incidents.count }}</span></li>
+                <li class="info-row"><span class="info-label">Points (this incident)</span><span class="info-value">{{ incident.points }}</span></li>
+                {% if incident.citizen.is_blacklisted %}
+                <li class="info-row"><span class="info-label">Blacklist Reason</span><span class="info-value">{{ incident.citizen.blacklist_reason }}</span></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <h2 class="h5 mb-3">Incident</h2>
+    {% if incident %}
+    <div class="incident-item">
+        <div class="incident-title">{{ incident.title|default:"Untitled incident" }}</div>
+        <dl>
+            <div>
+                <dt>Vehicle Reg. Number</dt>
+                <dd>{{ incident.vehicle_registration_number|default:"—" }}</dd>
+            </div>
+            <div>
+                <dt>Points</dt>
+                <dd>{{ incident.points }}</dd>
+            </div>
+            <div>
+                <dt>Location</dt>
+                <dd>{{ incident.location|default:"—" }}</dd>
+            </div>
+            <div>
+                <dt>Date</dt>
+                <dd>{{ incident.created|date:"F j, Y H:i" }}</dd>
+            </div>
+        </dl>
+        {% if incident.comment %}
+        <p class="incident-meta mt-2 mb-0">{{ incident.comment }}</p>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fas fa-clipboard-check"></i>
+        <p class="mb-0">No incident information to display.</p>
+    </div>
+    {% endif %}
 </section>
 {% endblock %}
