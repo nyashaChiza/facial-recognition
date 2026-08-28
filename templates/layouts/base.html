@@ -7,33 +7,55 @@
         <title></title>
         <meta name="Incident Management System" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css" integrity="sha256-2XFplPlrFClt0bIdPgpz8H7ojnk10H69xRqd9+uTS">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css" integrity="sha512-xA6Hp6oezhjd6LiLZynuukm80f8BoZ3OpcEYaqKoCV3HKQDrYjDE1Gu8ocxgxoXmwmSzM4iqPvCsOkQNiu41GA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/boxicons/2.1.0/css/boxicons.min.css" integrity="sha512-pVCM5+SN2+qwj36KonHToF2p1oIvoU3bsqxphdOIWMYmgr4ZqD3t5DjKvvetKhXGc/ZG5REYTT6ltKfExEei/Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css" integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
 
-        
+
         {% include 'layouts/styling.html'%}
         {% include 'layouts/table_styling.html'%}
 
     </head>
     <body>
-        
-            {% if messages %}
+        {% include 'layouts/header.html' %}
+
+        {% if messages %}
+            <div class="container">
                 {% for message in messages %}
-                    <div class="px -2 alert alert-{{ message.tags }}" role="alert">
-                        {{ message }}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-sm d-flex align-items-center" role="alert" data-autodismiss="6000">
+                        <i class="fas
+                            {% if message.tags == 'success' %}fa-check-circle
+                            {% elif message.tags == 'warning' %}fa-exclamation-triangle
+                            {% elif message.tags == 'danger' %}fa-times-circle
+                            {% else %}fa-info-circle{% endif %}
+                            me-2"></i>
+                        <div class="flex-grow-1">{{ message }}</div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endfor %}
-            {% endif %}
-    
-            {% block content %}
-            {% endblock %}
-       {% block body %}
+            </div>
+        {% endif %}
 
-       {% endblock %}
-        
-        <script src="" async defer></script>
+        {% block content %}
+        {% endblock %}
+        {% block body %}
+
+        {% endblock %}
+
+        {% include 'layouts/footer.html' %}
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('.alert[data-autodismiss]').forEach(function (el) {
+                    var delay = parseInt(el.getAttribute('data-autodismiss'), 10);
+                    setTimeout(function () {
+                        var alert = bootstrap.Alert.getOrCreateInstance(el);
+                        if (alert) {
+                            alert.close();
+                        }
+                    }, delay);
+                });
+            });
+        </script>
     </body>
 </html>
