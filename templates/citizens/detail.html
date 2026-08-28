@@ -51,11 +51,13 @@
                                     Blacklist Driver
                                 </a>
                                 {% else %}
-                             
-                                <a href="{% url 'reinstate-driver' citizen.pk %}"  class="button btn-md bg-success text-white mb-0 px-2 mx-2 py-2 mx-2 rounded-2">
-                           
-                                    Reinstate Driver
-                                </a>
+
+                                <form method="post" action="{% url 'reinstate-driver' citizen.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button btn-md bg-success text-white mb-0 px-2 mx-2 py-2 mx-2 rounded-2">
+                                        Reinstate Driver
+                                    </button>
+                                </form>
                                 {% endif %}
                                 
                                 

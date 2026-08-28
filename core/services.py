@@ -6,6 +6,7 @@ from loguru import logger
 from django.core.files.base import ContentFile
 
 from core.helpers import find_face
+from core.models import Citizen
 
 MAX_IMAGE_BYTES = 5 * 1024 * 1024  # 5MB
 
@@ -70,3 +71,12 @@ def process_driver_capture(citizen, image_data):
     citizen.picture.save(f'citizen_{citizen}.{ext}', ContentFile(decoded), save=False)
     citizen.save()
     return {"status": "saved", "detection": detection}
+
+
+def reinstate_driver(citizen_id):
+    """Clear a citizen's blacklist status and reason. Returns the citizen."""
+    citizen = Citizen.objects.get(pk=citizen_id)
+    citizen.is_blacklisted = False
+    citizen.blacklist_reason = ""
+    citizen.save()
+    return citizen

@@ -77,7 +77,20 @@ class BlacklistCitizenViewTests(TestCase):
 
 
 class ReinstateCitizenViewTests(TestCase):
-    def test_get_reinstates_citizen(self):
+    def test_post_reinstates_citizen(self):
+        citizen = Citizen.objects.create(
+            first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1",
+            is_blacklisted=True, blacklist_reason="Old reason",
+        )
+
+        response = self.client.post(reverse('reinstate-driver', args=[citizen.id]))
+
+        citizen.refresh_from_db()
+        self.assertFalse(citizen.is_blacklisted)
+        self.assertEqual(citizen.blacklist_reason, "")
+        self.assertRedirects(response, reverse('citizen-list'))
+
+    def test_get_is_not_allowed_and_does_not_mutate(self):
         citizen = Citizen.objects.create(
             first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1",
             is_blacklisted=True, blacklist_reason="Old reason",
@@ -85,10 +98,10 @@ class ReinstateCitizenViewTests(TestCase):
 
         response = self.client.get(reverse('reinstate-driver', args=[citizen.id]))
 
+        self.assertEqual(response.status_code, 405)
         citizen.refresh_from_db()
-        self.assertFalse(citizen.is_blacklisted)
-        self.assertEqual(citizen.blacklist_reason, "")
-        self.assertRedirects(response, reverse('citizen-list'))
+        self.assertTrue(citizen.is_blacklisted)
+        self.assertEqual(citizen.blacklist_reason, "Old reason")
 
 
 class CaptureIncidentViewTests(TestCase):

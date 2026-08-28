@@ -8,6 +8,7 @@ from core.services import (
     InvalidImageDataError,
     decode_captured_image,
     process_driver_capture,
+    reinstate_driver,
     MAX_IMAGE_BYTES,
 )
 
@@ -70,3 +71,18 @@ class ProcessDriverCaptureTests(TestCase):
     def test_invalid_image_data_raises_before_calling_find_face(self):
         with self.assertRaises(InvalidImageDataError):
             process_driver_capture(self.citizen, None)
+
+
+class ReinstateDriverTests(TestCase):
+    def test_reinstate_driver_clears_blacklist_flag(self):
+        citizen = Citizen.objects.create(
+            first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1",
+            is_blacklisted=True, blacklist_reason="Points Exceeded Limit",
+        )
+
+        result = reinstate_driver(citizen.id)
+
+        self.assertEqual(result.id, citizen.id)
+        citizen.refresh_from_db()
+        self.assertFalse(citizen.is_blacklisted)
+        self.assertEqual(citizen.blacklist_reason, "")

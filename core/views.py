@@ -4,8 +4,9 @@ from django.contrib import messages
 from .models import Citizen, CitizenImage, Config
 from .forms import BlacklistForm, CitizenSearchForm, CitizenForm, ConfigForm
 from django.shortcuts import render, redirect
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
-from core.services import InvalidImageDataError, process_driver_capture
+from core.services import InvalidImageDataError, process_driver_capture, reinstate_driver
 
 
 class IndexView(TemplateView):
@@ -39,14 +40,9 @@ class CitizenDetailView(DetailView):
     template_name = 'citizens/detail.html'
 
 
+@require_POST
 def reinstate_citizen(request, citizen_id):
-    # Retrieve the citizen object
-    citizen = Citizen.objects.get(pk=citizen_id)
-
-    if request.method == 'GET':
-        citizen.is_blacklisted = False
-        citizen.blacklist_reason = ""
-        citizen.save()
+    reinstate_driver(citizen_id)
     return redirect('citizen-list')
 
 
