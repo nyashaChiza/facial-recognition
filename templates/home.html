@@ -1,17 +1,15 @@
 {% extends 'layouts/base.html'%}
-{% include 'layouts/styling.html'%}
 {% block body %}
 
-<section class="pt-8 pt-md-9 m-3 p-3 rounded-2">
-    <div class="container">
-      <h2 class="text-dark fw-normal">
-        Driver Management
-      </h2>
+<section class="container bg-white mx-auto m-3 p-4 rounded-3 shadow-sm">
+    <div class="page-header">
+        <div class="page-header-title">
+            <span class="page-header-icon"><i class="fas fa-shield-alt"></i></span>
+            <h1>Driver Management</h1>
+        </div>
+    </div>
 
-      <!-- Form -->
-      
-  
-      <form method="get" action="{% url 'search_citizens' %}" class="mt-4">
+      <form method="get" action="{% url 'search_citizens' %}">
         <div class="input-group input-group-lg shadow-sm">
           <span class="input-group-text border-0">
             <i class="fas fa-search fa-xs text-secondary mb-1"></i>
@@ -87,7 +85,6 @@
           </a>
         </div>
       </div>
-    </div>
-  </section>
+</section>
 
 {% endblock %}
