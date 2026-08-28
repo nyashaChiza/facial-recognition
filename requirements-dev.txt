@@ -1,3 +1,4 @@
 # Dev/lint-only dependencies, on top of the pinned runtime set.
 -r requirements.txt
 flake8==7.3.0
+coverage==7.6.1

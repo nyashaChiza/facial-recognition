@@ -1,0 +1,11 @@
+[run]
+source = core,facial_recon
+omit =
+    */migrations/*
+    */tests/*
+    manage.py
+    facial_recon/asgi.py
+    facial_recon/wsgi.py
+
+[report]
+show_missing = True

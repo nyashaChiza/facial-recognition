@@ -77,6 +77,13 @@ pip install -r requirements-dev.txt
 python manage.py test
 ```
 
+To check coverage (CI enforces a 70% floor, configured in `.coveragerc`):
+
+```bash
+coverage run manage.py test
+coverage report
+```
+
 ## Linting
 
 ```bash

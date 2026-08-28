@@ -49,9 +49,10 @@ jobs:
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'test-secret-key' }}
         DEBUG: 'False'
         ALLOWED_HOSTS: 'localhost,127.0.0.1'
-    - name: Run Tests
+    - name: Run tests with coverage
       run: |
-        python manage.py test
+        coverage run manage.py test
+        coverage report --fail-under=70
       env:
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'test-secret-key' }}
         DEBUG: 'False'
