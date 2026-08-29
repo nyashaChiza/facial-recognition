@@ -1,7 +1,11 @@
 # forms.py (inside your app)
 
+import re
+
 from django import forms
 from .models import Citizen, Incident, CitizenImage, Config
+
+VEHICLE_REG_PATTERN = re.compile(r'^[A-Za-z0-9\- ]+$')
 
 
 class CitizenForm(forms.ModelForm):
@@ -37,6 +41,12 @@ class BlacklistForm(forms.ModelForm):
             field.widget.attrs['class'] = 'form-control'
         self.fields['is_blacklisted'].initial = True
 
+    def clean_blacklist_reason(self):
+        reason = (self.cleaned_data.get('blacklist_reason') or '').strip()
+        if not reason:
+            raise forms.ValidationError('Please provide a reason for blacklisting this driver.')
+        return reason
+
 
 class ConfigForm(forms.ModelForm):
     class Meta:
@@ -63,6 +73,14 @@ class IncidentForm(forms.ModelForm):
         widgets = {
             'incident_date': forms.DateInput(attrs={'type': 'date'})
         }
+
+    def clean_vehicle_registration_number(self):
+        value = (self.cleaned_data.get('vehicle_registration_number') or '').strip()
+        if value and not VEHICLE_REG_PATTERN.match(value):
+            raise forms.ValidationError(
+                'Vehicle registration number may only contain letters, numbers, spaces, and hyphens.'
+            )
+        return value
 
 
 class CitizenImageForm(forms.ModelForm):
