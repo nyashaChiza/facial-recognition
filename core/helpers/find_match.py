@@ -94,7 +94,7 @@ def find_face(image_path, tolerance=None):
     citizens = Citizen.objects.all().order_by('-pk')
     results = []
     for citizen in citizens:
-        settings.LOGGER.debug(f'checking: {citizen}')
+        settings.LOGGER.debug('checking: {}', citizen)
 
         if not citizen.picture:
             results.append({'driver': citizen, 'score': 0.0, 'status': False})
@@ -113,7 +113,7 @@ def find_face(image_path, tolerance=None):
     results.sort(key=lambda x: x['score'], reverse=True)
 
     # Return the driver with the highest score
-    settings.LOGGER.debug(f'sorted list: {results}')
+    settings.LOGGER.debug('sorted list: {}', results)
     if results:
         return results[0]
 

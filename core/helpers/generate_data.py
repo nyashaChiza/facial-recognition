@@ -24,7 +24,7 @@ def generate_random_data(num_citizens=25, num_incidents_per_citizen=50):
         # Generate fake CitizenImage data
 
         CitizenImage.objects.create(citizen=citizen)
-        settings.LOGGER.info(f"Driver created: {citizen}")
+        settings.LOGGER.info("Driver created: {}", citizen)
         # Generate fake Incident data
         for _ in range(random.randint(0, num_incidents_per_citizen)):
             incident = Incident.objects.create(
@@ -33,4 +33,4 @@ def generate_random_data(num_citizens=25, num_incidents_per_citizen=50):
                 comment=fake.paragraph(),
                 incident_date=timezone.now() - timedelta(days=random.randint(1, 130))
             )
-            settings.LOGGER.info(f"Incident created: {incident}")
+            settings.LOGGER.info("Incident created: {}", incident)
