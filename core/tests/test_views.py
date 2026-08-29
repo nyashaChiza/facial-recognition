@@ -60,6 +60,22 @@ class SearchCitizensTests(TestCase):
         response = self.client.get(reverse('search_citizens'))
         self.assertEqual(response.context['citizens'], [])
 
+    def test_comma_separated_query_matches_multiple_drivers(self):
+        jane = Citizen.objects.create(first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1")
+        john = Citizen.objects.create(first_name="John", last_name="Roe", id_type="Passport", id_number="X2")
+        Citizen.objects.create(first_name="Mary", last_name="Sue", id_type="Passport", id_number="X3")
+
+        response = self.client.get(reverse('search_citizens'), {'search_query': 'Doe, Roe'})
+
+        self.assertEqual(set(response.context['citizens']), {jane, john})
+
+    def test_comma_separated_query_does_not_duplicate_matches(self):
+        jane = Citizen.objects.create(first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1")
+
+        response = self.client.get(reverse('search_citizens'), {'search_query': 'Jane, Doe'})
+
+        self.assertEqual(list(response.context['citizens']), [jane])
+
 
 class BlacklistCitizenViewTests(TestCase):
     def test_post_blacklists_citizen_and_redirects(self):

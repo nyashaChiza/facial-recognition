@@ -106,11 +106,15 @@ def search_citizens(request):
     search_query = request.GET.get('search_query', '')
     citizens = []
     if search_query:
-        citizens = Citizen.objects.filter(
-            models.Q(first_name__icontains=search_query) |
-            models.Q(last_name__icontains=search_query) |
-            models.Q(id_number__icontains=search_query)
-        )
+        terms = [term.strip() for term in search_query.split(',') if term.strip()]
+        query = models.Q()
+        for term in terms:
+            query |= (
+                models.Q(first_name__icontains=term) |
+                models.Q(last_name__icontains=term) |
+                models.Q(id_number__icontains=term)
+            )
+        citizens = Citizen.objects.filter(query).distinct() if terms else []
     return render(request, 'citizens/search_results.html', {'citizens': citizens})
 
 
