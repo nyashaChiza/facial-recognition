@@ -7,3 +7,4 @@ Pillow==12.3.0
 reportlab==4.1.0
 Faker==23.3.0
 gunicorn==23.0.0
+sentry-sdk==2.68.1

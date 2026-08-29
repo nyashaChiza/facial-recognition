@@ -6,6 +6,8 @@
 #
 asgiref==3.12.1
     # via django
+certifi==2026.7.22
+    # via sentry-sdk
 chardet==7.6.0
     # via reportlab
 colorama==0.4.6
@@ -46,11 +48,15 @@ python-decouple==3.8
     # via -r requirements.in
 reportlab==4.1.0
     # via -r requirements.in
+sentry-sdk==2.68.1
+    # via -r requirements.in
 six==1.17.0
     # via python-dateutil
 sqlparse==0.6.0
     # via django
 tzdata==2026.3
     # via django
+urllib3==2.7.0
+    # via sentry-sdk
 win32-setctime==1.2.0
     # via loguru

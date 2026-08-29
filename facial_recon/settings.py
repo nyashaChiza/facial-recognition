@@ -2,6 +2,8 @@
 import os
 from pathlib import Path
 import loguru
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
 from django.contrib.messages import constants as message_constants
 from decouple import config, Csv
 
@@ -20,6 +22,16 @@ SECRET_KEY = config(
     default='django-insecure-$-n#_4agqzg%+&#+xs_@5m=5+njty!-%di5537s^$atc^@ew$9',
 )
 LOGGER = loguru.logger
+
+# Empty by default, so error tracking is a no-op unless SENTRY_DSN is set in
+# the environment (e.g. in production).
+SENTRY_DSN = config('SENTRY_DSN', default='')
+if SENTRY_DSN:
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[DjangoIntegration()],
+        send_default_pii=False,
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)

@@ -44,6 +44,8 @@ auto-blacklist drivers whose incident points exceed a configurable threshold.
    - `ALLOWED_HOSTS`: comma-separated hostnames Django will serve.
    - `CSRF_TRUSTED_ORIGINS`: only needed when exposing the dev server through
      a tunnel (e.g. ngrok).
+   - `SENTRY_DSN`: optional. Set it to enable [Sentry](https://sentry.io) error
+     tracking; leave empty (the default) to run without it.
 4. Run migrations:
    ```bash
    python manage.py migrate
@@ -93,7 +95,7 @@ CI runs both the test suite and flake8 on every push/PR.
 
 ## Dependency updates
 
-`requirements.txt` and `requirements-dev.txt` are the pinned, installable lockfiles. `requirements.in` and `requirements-dev.in` list the direct dependencies they were compiled from (via [pip-tools](https://pypi.org/project/pip-tools/)):
+`requirements.txt` and `requirements-dev.txt` are the pinned, installable lockfiles enforced by CI - `pip-audit` scans `requirements.txt`, and `pip install -r requirements-dev.txt` is what CI installs before running tests and flake8. `requirements.in` and `requirements-dev.in` list the direct dependencies they were compiled from (via [pip-tools](https://pypi.org/project/pip-tools/)):
 
 ```bash
 pip install pip-tools
