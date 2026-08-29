@@ -6,8 +6,9 @@ from core.helpers import find_face
 from django.shortcuts import redirect
 from django.views.generic import ListView, DetailView, CreateView
 from core.services import InvalidImageDataError, decode_captured_image, write_temp_image
+from core.services_incidents import record_incident
 
-from .models import Incident, Config
+from .models import Incident
 from .forms import IncidentForm
 
 
@@ -56,17 +57,8 @@ def capture_incident(request):
             return redirect(request.path)
 
         driver = match['driver']
-        incident_form = IncidentForm(request.POST)
-        if incident_form.is_valid():
-            incident = incident_form.save(commit=False)
-            incident.citizen = driver
-            incident.save()
-            config = Config.objects.first()
-            max_points = config.maximum_points_threshold if config else 1
-            if incident.citizen.get_total_points() > max_points:
-                incident.citizen.is_blacklisted = True
-                incident.citizen.blacklist_reason = 'Points Exceeded Limit'
-                incident.citizen.save()
+        result = record_incident(driver, request.POST)
+        if result['status'] == 'saved':
             if driver.is_blacklisted:
                 messages.warning(
                     request,
@@ -74,7 +66,6 @@ def capture_incident(request):
                 )
             else:
                 messages.success(request, f'Incident for {driver} saved successfully')
-
         else:
             messages.warning(request, f'Invalid Driver Information for {driver}')
     else:
