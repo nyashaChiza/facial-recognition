@@ -95,12 +95,12 @@ CI runs both the test suite and flake8 on every push/PR.
 
 ## Dependency updates
 
-`requirements.txt` and `requirements-dev.txt` are the pinned, installable lockfiles enforced by CI - `pip-audit` scans `requirements.txt`, and `pip install -r requirements-dev.txt` is what CI installs before running tests and flake8. `requirements.in` and `requirements-dev.in` list the direct dependencies they were compiled from (via [pip-tools](https://pypi.org/project/pip-tools/)):
+`requirements.txt` and `requirements-dev.txt` are the pinned, hash-locked lockfiles enforced by CI - `pip-audit` scans `requirements.txt`, and CI installs with `pip install -r requirements-dev.txt --require-hashes`, so a fresh install is byte-identical or it fails. `requirements.in` and `requirements-dev.in` list the direct dependencies they were compiled from (via [pip-tools](https://pypi.org/project/pip-tools/)):
 
 ```bash
 pip install pip-tools
-pip-compile requirements.in
-pip-compile requirements-dev.in
+pip-compile --generate-hashes requirements.in
+pip-compile --generate-hashes requirements-dev.in
 ```
 
 [Dependabot](.github/dependabot.yml) opens a weekly PR for outdated pip and GitHub Actions dependencies. CI also runs [`pip-audit`](https://pypi.org/project/pip-audit/) against `requirements.txt` on every push/PR to catch known vulnerabilities:
