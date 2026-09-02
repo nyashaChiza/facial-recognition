@@ -7,6 +7,7 @@ from django.shortcuts import redirect
 from django.views.generic import ListView, DetailView, CreateView
 from core.services import InvalidImageDataError, decode_captured_image, write_temp_image
 from core.services_incidents import record_incident
+from core.validators import PayloadValidationError, validate_capture_payload
 
 from .models import Incident
 from .forms import IncidentForm
@@ -32,10 +33,10 @@ class IncidentDetailView(DetailView):
 
 def capture_incident(request):
     if request.method == 'POST':
-        image_data = request.POST.get('image_data')
         try:
+            image_data = validate_capture_payload(request.POST)
             ext, decoded = decode_captured_image(image_data)
-        except InvalidImageDataError as e:
+        except (PayloadValidationError, InvalidImageDataError) as e:
             messages.warning(request, str(e))
             return redirect(reverse('incident-list'))
 

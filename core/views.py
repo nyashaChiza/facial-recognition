@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from core.services import InvalidImageDataError, process_driver_capture, reinstate_driver, update_driver_photo
+from core.validators import PayloadValidationError, validate_capture_payload
 
 
 class IndexView(TemplateView):
@@ -123,10 +124,10 @@ def capture_driver(request):
         citizen_form = CitizenForm(request.POST)
         if citizen_form.is_valid():
             citizen = citizen_form.save(commit=False)
-            image_data = request.POST.get('image_data')
             try:
+                image_data = validate_capture_payload(request.POST)
                 result = process_driver_capture(citizen, image_data)
-            except InvalidImageDataError as e:
+            except (PayloadValidationError, InvalidImageDataError) as e:
                 messages.warning(request, str(e))
             else:
                 if result['status'] == 'duplicate':
