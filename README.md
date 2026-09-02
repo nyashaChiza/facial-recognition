@@ -60,8 +60,18 @@ auto-blacklist drivers whose incident points exceed a configurable threshold.
 ### Running with Docker
 
 ```bash
+docker compose up
+```
+
+This builds the image, runs migrations automatically (via `entrypoint.sh`)
+before the server starts, and serves the app at `localhost:8000`. It reads
+config from `.env` and persists uploaded photos to `./media` on the host.
+
+To run the container directly instead:
+
+```bash
 docker build -t facial-recognition .
-docker run --env-file .env -p 8000:8000 facial-recognition
+docker run --env-file .env -p 8000:8000 -v $(pwd)/media:/app/media facial-recognition
 ```
 
 ## Usage

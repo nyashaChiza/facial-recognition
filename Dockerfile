@@ -15,9 +15,12 @@ COPY manage.py .
 COPY core/ core/
 COPY facial_recon/ facial_recon/
 COPY templates/ templates/
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
 ENV DEBUG=False
 
 EXPOSE 8000
 
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["gunicorn", "facial_recon.wsgi:application", "--bind", "0.0.0.0:8000"]
