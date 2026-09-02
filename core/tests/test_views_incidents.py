@@ -55,6 +55,54 @@ class CaptureIncidentBlacklistThresholdTests(TestCase):
         self.assertTrue(self.driver.is_blacklisted)
 
 
+class CaptureIncidentMessagingTests(TestCase):
+    def setUp(self):
+        self.driver = Citizen.objects.create(
+            first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1",
+        )
+
+    def _post_incident(self, data):
+        with mock.patch('core.views_incidents.find_face') as mock_find_face:
+            mock_find_face.return_value = {'driver': self.driver, 'score': 0.9, 'status': True}
+            return self.client.post(reverse('incident-capture'), data, follow=True)
+
+    def test_saved_incident_for_non_blacklisted_driver_shows_plain_success(self):
+        Config.objects.create(maximum_points_threshold=100)
+
+        response = self._post_incident(
+            {'title': 'Speeding', 'comment': 'test', 'points': 1, 'image_data': VALID_IMAGE_DATA}
+        )
+
+        messages = [str(m) for m in response.context['messages']]
+        self.assertTrue(any('saved successfully' in m and 'blacklisted' not in m for m in messages))
+        self.assertEqual(Incident.objects.count(), 1)
+
+    def test_incident_that_triggers_blacklisting_shows_blacklist_note(self):
+        Config.objects.create(maximum_points_threshold=1)
+
+        response = self._post_incident(
+            {'title': 'Speeding', 'comment': 'test', 'points': 10, 'image_data': VALID_IMAGE_DATA}
+        )
+
+        messages = [str(m) for m in response.context['messages']]
+        self.assertTrue(any('blacklisted Driver' in m for m in messages))
+
+    def test_invalid_incident_form_data_shows_warning_and_does_not_save(self):
+        # 'comment' is required by IncidentForm; omitting it makes the form invalid.
+        response = self._post_incident({'title': 'Speeding', 'points': 1, 'image_data': VALID_IMAGE_DATA})
+
+        messages = [str(m) for m in response.context['messages']]
+        self.assertTrue(any('Invalid Driver Information' in m for m in messages))
+        self.assertEqual(Incident.objects.count(), 0)
+
+    def test_get_request_shows_method_not_allowed_and_does_not_save(self):
+        response = self.client.get(reverse('incident-capture'), follow=True)
+
+        messages = [str(m) for m in response.context['messages']]
+        self.assertTrue(any('Method Not Allowed' in m for m in messages))
+        self.assertEqual(Incident.objects.count(), 0)
+
+
 class CaptureIncidentNoMatchTests(TestCase):
     def test_no_face_detected_shows_face_not_detected_message(self):
         with mock.patch('core.views_incidents.find_face', return_value=None):
