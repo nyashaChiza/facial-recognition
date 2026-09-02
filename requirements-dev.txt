@@ -119,10 +119,6 @@ chardet==7.6.0 \
     --hash=sha256:f2ec3c78cc6b54bf8e091ec4ee885473078b5d7ef18ab1b01c86ae1e98bf88f7 \
     --hash=sha256:fc1e1571321baf8927582fe34363ad7f02279f11c8c2839c14b4c76894148db6
     # via reportlab
-colorama==0.4.6 \
-    --hash=sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44 \
-    --hash=sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
-    # via loguru
 coverage==7.6.1 \
     --hash=sha256:06a737c882bd26d0d6ee7269b20b12f14a8704807a01056c80bb881a4b2ce6ca \
     --hash=sha256:07e2ca0ad381b91350c0ed49d52699b625aab2b44b65e1b4e02fa9df0e92ad2d \
@@ -499,14 +495,16 @@ numpy==2.5.2 \
     # via
     #   -r requirements.in
     #   opencv-python
-opencv-python==4.10.0.84 \
-    --hash=sha256:09a332b50488e2dda866a6c5573ee192fe3583239fb26ff2f7f9ceb0bc119ea6 \
-    --hash=sha256:2db02bb7e50b703f0a2d50c50ced72e95c574e1e5a0bb35a8a86d0b35c98c236 \
-    --hash=sha256:32dbbd94c26f611dc5cc6979e6b7aa1f55a64d6b463cc1dcd3c95505a63e48fe \
-    --hash=sha256:71e575744f1d23f79741450254660442785f45a0797212852ee5199ef12eed98 \
-    --hash=sha256:72d234e4582e9658ffea8e9cae5b63d488ad06994ef12d81dc303b17472f3526 \
-    --hash=sha256:9ace140fc6d647fbe1c692bcb2abce768973491222c067c131d80957c595b71f \
-    --hash=sha256:fc182f8f4cda51b45f01c64e4cbedfc2f00aff799debebc305d8d0210c43f251
+opencv-python==5.0.0.93 \
+    --hash=sha256:08d5d91d967b58d6db86073b2ad3eaef88ca4ebdfd45c9059bf59f5ded0c7ad2 \
+    --hash=sha256:198a75138241810206a17c829dbcc40a7cb1841cda538ca86cbbfc6c7d95f898 \
+    --hash=sha256:4b4b1a34c79bf8d3738e3cfe9a9e67b51a79663f6b692cbdad8c31f570da4157 \
+    --hash=sha256:66aac3e5b5faa48d4025816592f3af19e4bfc2c68dec067bae2dbb4ca10aa9e2 \
+    --hash=sha256:6bbc32f59e1b1a7db7b39c81f63d00625f041d333037fd8702f6da52cc39108b \
+    --hash=sha256:c8de2dec111122a02e8beb28e16c31904992dfd6186560b142a92c71403c1039 \
+    --hash=sha256:e2b4272e736836f66c2d176e43ab8101f3a00d45654916399f52e150c58981ac \
+    --hash=sha256:f8b6d0a212253dd26ad338c812f1f23ca118fdf05a9c8c6b9444f161aa8c5881 \
+    --hash=sha256:f90ba04b8f73bc5c3814037699739f0156f597338a98f05956c684e7c3ca10d2
     # via -r requirements.in
 packaging==26.3 \
     --hash=sha256:94edc256424af38762eb31306eed28beb9f0efc50a8837492c9d6fd6004aed79 \
@@ -650,15 +648,7 @@ typing-extensions==4.16.0 \
     #   django-stubs
     #   django-stubs-ext
     #   mypy
-tzdata==2026.3 \
-    --hash=sha256:4a1518b8993086a7982523e071643f3c0e5f213e75b21318e78bcabfff9d1415 \
-    --hash=sha256:dc096730c87af6cab1b171c9d532be840741ff5d459015e7f6947bd7d7e54931
-    # via django
 urllib3==2.7.0 \
     --hash=sha256:231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c \
     --hash=sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897
     # via sentry-sdk
-win32-setctime==1.2.0 \
-    --hash=sha256:95d644c4e708aba81dc3704a116d8cbc974d70b3bdb8be1d150e36be6e9d1390 \
-    --hash=sha256:ae1fdf948f5640aae05c511ade119313fb6a30d7eabe25fef9764dca5873c4c0
-    # via loguru
