@@ -105,7 +105,7 @@ class ImagesListView(ListView):
 
 def search_citizens(request):
     search_query = request.GET.get('search_query', '')
-    citizens = []
+    citizens: models.QuerySet | list = []
     if search_query:
         terms = [term.strip() for term in search_query.split(',') if term.strip()]
         query = models.Q()

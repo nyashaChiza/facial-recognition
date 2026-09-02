@@ -26,14 +26,16 @@ def _get_detector():
         # that, so detection silently fails ("Driver Face not detected")
         # even when a face is clearly present. 0.6 is the commonly
         # recommended threshold for in-the-wild capture conditions.
-        _detector = cv2.FaceDetectorYN_create(YUNET_MODEL_PATH, "", (320, 320), score_threshold=0.6)
+        _detector = cv2.FaceDetectorYN_create(  # type: ignore[attr-defined]
+            YUNET_MODEL_PATH, "", (320, 320), score_threshold=0.6
+        )
     return _detector
 
 
 def _get_recognizer():
     global _recognizer
     if _recognizer is None:
-        _recognizer = cv2.FaceRecognizerSF_create(SFACE_MODEL_PATH, "")
+        _recognizer = cv2.FaceRecognizerSF_create(SFACE_MODEL_PATH, "")  # type: ignore[attr-defined]
     return _recognizer
 
 
@@ -71,7 +73,7 @@ def _compare_features(feature1, feature2, tolerance):
     return {"status": score >= tolerance, "confidence": score}
 
 
-def find_face(image_path, tolerance=None):
+def find_face(image_path, tolerance: float | None = None):
     """
     Detect the face in image_path and find the closest-matching registered
     citizen.
@@ -92,7 +94,7 @@ def find_face(image_path, tolerance=None):
         return None
 
     citizens = Citizen.objects.all().order_by('-pk')
-    results = []
+    results: list[dict] = []
     for citizen in citizens:
         settings.LOGGER.debug('checking: {}', citizen)
 
@@ -110,7 +112,7 @@ def find_face(image_path, tolerance=None):
         results.append({'driver': citizen, 'score': result['confidence'], 'status': result['status']})
 
     # Sort the results based on the score in descending order
-    results.sort(key=lambda x: x['score'], reverse=True)
+    results.sort(key=lambda x: float(x['score']), reverse=True)
 
     # Return the driver with the highest score
     settings.LOGGER.debug('sorted list: {}', results)
@@ -121,7 +123,7 @@ def find_face(image_path, tolerance=None):
         return None
 
 
-def match_faces(path1: str, path2: str, tolerance: float = None):
+def match_faces(path1: str, path2: str, tolerance: float | None = None):
     if tolerance is None:
         tolerance = get_match_tolerance()
 

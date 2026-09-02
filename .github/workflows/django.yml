@@ -41,6 +41,13 @@ jobs:
       run: |
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         flake8 . --count --statistics
+    - name: Typecheck with mypy
+      run: |
+        mypy core/
+      env:
+        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'test-secret-key' }}
+        DEBUG: 'False'
+        ALLOWED_HOSTS: 'localhost,127.0.0.1'
     - name: Run migrations
       run: |
         python manage.py migrate

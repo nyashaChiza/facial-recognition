@@ -62,6 +62,7 @@ class ConfigDefaultRowTests(TestCase):
         self.assertEqual(Config.objects.count(), 1)
 
         config = Config.objects.first()
+        assert config is not None
         self.assertEqual(config.minimum_detection_threshold, 1)
         self.assertEqual(config.maximum_detection_threshold, 40)
         self.assertEqual(config.maximum_points_threshold, 1)

@@ -10,15 +10,18 @@ python manage.py migrate
 
 ## Before opening a PR
 
-Run the test suite and linter, and make sure both are clean:
+Run the test suite, linter, and typechecker, and make sure all three are clean:
 
 ```bash
 python manage.py test
 flake8 .
+mypy core/
 ```
 
 CI (`.github/workflows/django.yml`) runs the same checks, plus `pip-audit`,
 on every push and PR across Python 3.12-3.14.
+
+If the change adds or updates a dependency, edit `requirements.in`/`requirements-dev.in` and regenerate the lockfiles - see [Dependency updates](README.md#dependency-updates).
 
 ## Commit style
 

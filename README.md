@@ -101,7 +101,15 @@ coverage report
 flake8 .
 ```
 
-CI runs both the test suite and flake8 on every push/PR.
+## Typechecking
+
+```bash
+mypy core/
+```
+
+Configured in `mypy.ini` with `django-stubs`, targeting `core/` (migrations excluded).
+
+CI runs the test suite, flake8, and mypy on every push/PR.
 
 ## Dependency updates
 
