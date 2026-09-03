@@ -33,6 +33,21 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt --require-hashes
+    - name: Verify ML model files are the real thing, not LFS/Git pointer stubs
+      # These are committed directly (not Git LFS) so a fresh clone needs no
+      # extra download step - but a corrupted checkout or an accidental
+      # switch to LFS-style tracking would silently leave a ~130-byte
+      # pointer file in their place, which find_match.py would fail to load
+      # with a confusing OpenCV error rather than a clear one. Fail fast here
+      # instead, before tests even start.
+      run: |
+        for f in core/ml_models/face_detection_yunet_2023mar.onnx core/ml_models/face_recognition_sface_2021dec.onnx; do
+          size=$(stat -c%s "$f")
+          if [ "$size" -lt 10000 ]; then
+            echo "::error::$f is only $size bytes - looks like a pointer stub, not the real model file" >&2
+            exit 1
+          fi
+        done
     - name: Audit dependencies for known vulnerabilities
       run: |
         pip install pip-audit

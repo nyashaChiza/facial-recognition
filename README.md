@@ -18,6 +18,10 @@ auto-blacklist drivers whose incident points exceed a configurable threshold.
   from source - every package in `requirements.txt` ships a prebuilt wheel,
   including on brand-new Python releases, so no C/C++ compiler or CMake is
   needed).
+- No separate model download step: the ONNX face-detection/recognition
+  models under `core/ml_models/` (see [core/ml_models/README.md](core/ml_models/README.md))
+  are committed directly to the repo, not fetched via Git LFS or a setup
+  script, so `git clone` alone is enough to run the app or the test suite.
 
 ## Setup
 
