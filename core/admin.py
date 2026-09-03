@@ -52,5 +52,13 @@ class ConfigAdmin(admin.ModelAdmin):
         }),
     )
 
+    def has_add_permission(self, request):
+        # Config is a singleton in practice: every view that reads it uses
+        # Config.objects.first(), and the migration that seeds the first
+        # row assumes there's only ever one. A second row via the admin
+        # would silently desync "first()" reads from whichever row the
+        # config-update form actually edited.
+        return not Config.objects.exists()
+
 
 admin.site.register(Config, ConfigAdmin)
