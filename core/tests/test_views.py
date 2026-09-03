@@ -97,6 +97,15 @@ class BlacklistCitizenViewTests(TestCase):
         response = self.client.get(reverse('blacklist-driver', args=[999]))
         self.assertEqual(response.status_code, 404)
 
+    def test_missing_blacklist_reason_key_redirects_without_saving(self):
+        citizen = Citizen.objects.create(first_name="Jane", last_name="Doe", id_type="Passport", id_number="X1")
+
+        response = self.client.post(reverse('blacklist-driver', args=[citizen.id]), {'is_blacklisted': True})
+
+        citizen.refresh_from_db()
+        self.assertFalse(citizen.is_blacklisted)
+        self.assertRedirects(response, reverse('citizen-detail', kwargs={'pk': citizen.id}))
+
 
 class ReinstateCitizenViewTests(TestCase):
     def test_post_reinstates_citizen(self):
@@ -234,6 +243,19 @@ class EditCitizenViewTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
+        self.citizen.refresh_from_db()
+        self.assertEqual(self.citizen.first_name, 'Jane')
+
+    def test_missing_required_key_redirects_without_saving(self):
+        # id_number is entirely absent, not just blank - a malformed
+        # request rather than a normal validation error a user would hit
+        # through the form itself.
+        response = self.client.post(
+            reverse('citizen-update', args=[self.citizen.pk]),
+            {'first_name': 'Janet', 'last_name': 'Doe', 'id_type': 'Passport'},
+        )
+
+        self.assertRedirects(response, reverse('citizen-detail', kwargs={'pk': self.citizen.pk}))
         self.citizen.refresh_from_db()
         self.assertEqual(self.citizen.first_name, 'Jane')
 

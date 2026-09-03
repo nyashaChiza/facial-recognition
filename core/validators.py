@@ -20,3 +20,27 @@ def validate_capture_payload(data):
         raise PayloadValidationError("'image_data' must be a string")
 
     return image_data
+
+
+def validate_required_fields(data, fields):
+    """
+    Check that `data` (a request.POST-like mapping) has each name in
+    `fields` present and holding a string value, before it's handed to a
+    Django form. Raises PayloadValidationError naming the first missing or
+    wrong-typed field.
+    """
+    for field in fields:
+        if field not in data:
+            raise PayloadValidationError(f"Missing required field '{field}'")
+        if not isinstance(data.get(field), str):
+            raise PayloadValidationError(f"'{field}' must be a string")
+
+
+def validate_blacklist_payload(data):
+    """Required fields for the blacklist_citizen view's POST body."""
+    validate_required_fields(data, ['blacklist_reason'])
+
+
+def validate_citizen_payload(data):
+    """Required fields for CitizenForm, as posted by the edit_citizen view."""
+    validate_required_fields(data, ['first_name', 'last_name', 'id_type', 'id_number'])

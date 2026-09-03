@@ -7,7 +7,12 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView
 from core.services import InvalidImageDataError, process_driver_capture, reinstate_driver, update_driver_photo
-from core.validators import PayloadValidationError, validate_capture_payload
+from core.validators import (
+    PayloadValidationError,
+    validate_blacklist_payload,
+    validate_capture_payload,
+    validate_citizen_payload,
+)
 
 
 class IndexView(TemplateView):
@@ -51,6 +56,12 @@ def blacklist_citizen(request, citizen_id):
     citizen = get_object_or_404(Citizen, pk=citizen_id)
 
     if request.method == 'POST':
+        try:
+            validate_blacklist_payload(request.POST)
+        except PayloadValidationError as e:
+            messages.warning(request, str(e))
+            return redirect('citizen-detail', pk=citizen_id)
+
         # Create a form instance and populate it with data from the request
         form = BlacklistForm(request.POST, instance=citizen)
         if form.is_valid():
@@ -76,6 +87,12 @@ def edit_citizen(request, pk):
     citizen = get_object_or_404(Citizen, pk=pk)
 
     if request.method == 'POST':
+        try:
+            validate_citizen_payload(request.POST)
+        except PayloadValidationError as e:
+            messages.warning(request, str(e))
+            return redirect('citizen-detail', pk=citizen.pk)
+
         form = CitizenForm(request.POST, instance=citizen)
         if form.is_valid():
             citizen = form.save()
