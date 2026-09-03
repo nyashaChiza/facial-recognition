@@ -1,5 +1,6 @@
 
 import os
+import sys
 from pathlib import Path
 import loguru
 import sentry_sdk
@@ -35,6 +36,13 @@ if SENTRY_DSN:
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
+
+if not DEBUG:
+    # Structured JSON logs so a log aggregator can parse them, instead of
+    # loguru's default colorized human-readable console format (which stays
+    # for local dev, where a person is reading stdout directly).
+    LOGGER.remove()
+    LOGGER.add(sys.stdout, serialize=True)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv())
 
