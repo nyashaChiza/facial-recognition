@@ -13,6 +13,8 @@ auto-blacklist drivers whose incident points exceed a configurable threshold.
 - **Auto-blacklisting:** a driver is automatically blacklisted once their total incident points exceed a configurable threshold (see System Settings in the app).
 - **PDF reports:** generate a per-driver incident report as a PDF.
 
+See [CHANGELOG.md](CHANGELOG.md) for release history.
+
 ## Prerequisites
 - Python 3.12 or newer (this project has no dependency that needs compiling
   from source - every package in `requirements.txt` ships a prebuilt wheel,
