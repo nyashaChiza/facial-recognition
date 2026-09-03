@@ -140,3 +140,15 @@ MESSAGE_TAGS = {
 # Empty by default; set e.g. CSRF_TRUSTED_ORIGINS=https://*.ngrok-free.app
 # in the environment when exposing the dev server via a tunnel.
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
+
+# Gated on DEBUG rather than always-on: the dev server serves plain HTTP, so
+# *_COOKIE_SECURE would silently drop the session/CSRF cookie locally.
+# SECURE_SSL_REDIRECT/HSTS are deliberately not set here - enabling them
+# blind can cause a redirect loop on a host that terminates TLS at a proxy
+# without also setting SECURE_PROXY_SSL_HEADER, so that's a per-deployment
+# decision, not a safe default.
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
