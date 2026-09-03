@@ -1,6 +1,7 @@
 import base64
 from unittest import mock
 
+from django.http import Http404
 from django.test import TestCase
 
 from core.models import Citizen
@@ -104,3 +105,7 @@ class ReinstateDriverTests(TestCase):
         citizen.refresh_from_db()
         self.assertFalse(citizen.is_blacklisted)
         self.assertEqual(citizen.blacklist_reason, "")
+
+    def test_raises_http404_for_missing_citizen(self):
+        with self.assertRaises(Http404):
+            reinstate_driver(999)

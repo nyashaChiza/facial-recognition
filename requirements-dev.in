@@ -3,3 +3,4 @@ flake8
 coverage
 mypy
 django-stubs
+pypdf==6.16.2

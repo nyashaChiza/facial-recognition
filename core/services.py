@@ -4,6 +4,7 @@ import binascii
 
 from loguru import logger
 from django.core.files.base import ContentFile
+from django.shortcuts import get_object_or_404
 
 from core.helpers import find_face
 from core.models import Citizen
@@ -74,8 +75,12 @@ def process_driver_capture(citizen, image_data):
 
 
 def reinstate_driver(citizen_id):
-    """Clear a citizen's blacklist status and reason. Returns the citizen."""
-    citizen = Citizen.objects.get(pk=citizen_id)
+    """
+    Clear a citizen's blacklist status and reason. Returns the citizen.
+    Raises Http404 (-> a clean 404 response) if citizen_id doesn't exist,
+    rather than letting Citizen.DoesNotExist bubble up as a 500.
+    """
+    citizen = get_object_or_404(Citizen, pk=citizen_id)
     citizen.is_blacklisted = False
     citizen.blacklist_reason = ""
     citizen.save()

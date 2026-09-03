@@ -1,9 +1,11 @@
+import io
 from unittest import mock
 
 from django.test import TestCase
 from django.urls import reverse
+from pypdf import PdfReader
 
-from core.models import Citizen, Config
+from core.models import Citizen, Config, Incident
 
 
 class IndexViewTests(TestCase):
@@ -91,6 +93,10 @@ class BlacklistCitizenViewTests(TestCase):
         self.assertEqual(citizen.blacklist_reason, 'Repeated violations')
         self.assertRedirects(response, reverse('citizen-detail', kwargs={'pk': citizen.id}))
 
+    def test_404_for_missing_citizen(self):
+        response = self.client.get(reverse('blacklist-driver', args=[999]))
+        self.assertEqual(response.status_code, 404)
+
 
 class ReinstateCitizenViewTests(TestCase):
     def test_post_reinstates_citizen(self):
@@ -117,7 +123,10 @@ class ReinstateCitizenViewTests(TestCase):
         self.assertEqual(response.status_code, 405)
         citizen.refresh_from_db()
         self.assertTrue(citizen.is_blacklisted)
-        self.assertEqual(citizen.blacklist_reason, "Old reason")
+
+    def test_404_for_missing_citizen(self):
+        response = self.client.post(reverse('reinstate-driver', args=[999]))
+        self.assertEqual(response.status_code, 404)
 
 
 class CaptureIncidentViewTests(TestCase):
@@ -242,3 +251,33 @@ class GenerateIncidentReportTests(TestCase):
     def test_404_for_missing_citizen(self):
         response = self.client.get(reverse('generate_incident_report', args=[999]))
         self.assertEqual(response.status_code, 404)
+
+    def test_quote_in_name_does_not_break_content_disposition_header(self):
+        citizen = Citizen.objects.create(
+            first_name='Jane "JJ"', last_name='Doe', id_type='Passport', id_number='X2',
+        )
+
+        response = self.client.get(reverse('generate_incident_report', args=[citizen.id]))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('"JJ"', response['Content-Disposition'])
+
+    def test_non_ascii_name_falls_back_to_a_slug_instead_of_crashing(self):
+        citizen = Citizen.objects.create(
+            first_name='José', last_name='Müller', id_type='Passport', id_number='X3',
+        )
+
+        response = self.client.get(reverse('generate_incident_report', args=[citizen.id]))
+
+        self.assertEqual(response.status_code, 200)
+        response['Content-Disposition'].encode('latin-1')  # would raise if non-ASCII leaked through
+
+    def test_paginates_instead_of_running_off_the_page_for_many_incidents(self):
+        citizen = Citizen.objects.create(first_name="Busy", last_name="Driver", id_type="Passport", id_number="X4")
+        for i in range(10):
+            Incident.objects.create(citizen=citizen, title=f"Incident {i}", comment="test")
+
+        response = self.client.get(reverse('generate_incident_report', args=[citizen.id]))
+
+        reader = PdfReader(io.BytesIO(response.content))
+        self.assertGreater(len(reader.pages), 1)

@@ -48,8 +48,7 @@ def reinstate_citizen(request, citizen_id):
 
 
 def blacklist_citizen(request, citizen_id):
-    # Retrieve the citizen object
-    citizen = Citizen.objects.get(pk=citizen_id)
+    citizen = get_object_or_404(Citizen, pk=citizen_id)
 
     if request.method == 'POST':
         # Create a form instance and populate it with data from the request
