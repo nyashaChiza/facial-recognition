@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import (
-    IndexView,
+from .views import IndexView, ConfigUpdateView
+from .views_citizens import (
     CitizenListView,
     ImagesListView,
     CitizenDetailView,
@@ -11,7 +11,6 @@ from .views import (
     blacklist_citizen,
     reinstate_citizen,
     BlacklistedCitizenListView,
-    ConfigUpdateView
 )
 from .views_reports import generate_incident_report
 from .views_incidents import (
