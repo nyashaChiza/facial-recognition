@@ -78,3 +78,36 @@ jobs:
         SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY || 'test-secret-key' }}
         DEBUG: 'False'
         ALLOWED_HOSTS: 'localhost,127.0.0.1'
+
+  docker-smoke:
+    # Everything above tests the app in a bare Python venv; this instead
+    # validates the actual path documented in the README - a completely
+    # fresh clone (no .env, no db.sqlite3) booting via `docker compose up`.
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Create a placeholder .env for the compose smoke test
+      run: cp .env.example .env
+    - name: Build and start the app via docker compose
+      run: docker compose up -d --build
+    - name: Wait for /health/ to respond
+      run: |
+        for i in $(seq 1 30); do
+          if curl -fs http://localhost:8000/health/ > /tmp/health.json; then
+            echo "Got a response after ${i} attempt(s):"
+            cat /tmp/health.json
+            exit 0
+          fi
+          sleep 2
+        done
+        echo "::error::App did not respond on /health/ within 60s"
+        docker compose logs
+        exit 1
+    - name: Verify the health response body
+      run: |
+        grep -q '"status": *"ok"' /tmp/health.json || (echo "::error::unexpected health body: $(cat /tmp/health.json)" && exit 1)
+    - name: Tear down
+      if: always()
+      run: docker compose down -v
