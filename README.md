@@ -87,6 +87,11 @@ docker run --env-file .env -p 8000:8000 -v $(pwd)/media:/app/media facial-recogn
    and logs the incident against the matched driver.
 4. Adjust detection/points thresholds under "System Settings".
 
+## Observability
+- `GET /health/` - process liveness (always `{"status": "ok"}` if the app is up).
+- `GET /readiness/` - checks database connectivity; returns 503 if the DB is unreachable.
+- `GET /metrics/` - basic in-process counters (`requests_total`, `matches_total`) as JSON.
+
 ## Testing
 
 ```bash

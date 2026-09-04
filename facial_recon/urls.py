@@ -5,10 +5,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from core.views_health import health_check, readiness_check
+from core.views_metrics import metrics
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('health/', health_check, name='health-check'),
     path('readiness/', readiness_check, name='readiness-check'),
+    path('metrics/', metrics, name='metrics'),
     path('', include('core.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

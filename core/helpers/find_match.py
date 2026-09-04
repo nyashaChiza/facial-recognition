@@ -2,6 +2,7 @@ import os
 
 import cv2
 from facial_recon import settings
+from core.metrics import increment
 from core.models import Citizen, Config
 
 _MODELS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'ml_models')
@@ -85,6 +86,8 @@ def find_face(image_path, tolerance: float | None = None):
     confident match: with citizens registered, this always returns the
     closest one, even if that citizen is a poor/no match.
     """
+    increment('matches_total')
+
     if tolerance is None:
         tolerance = get_match_tolerance()
 
